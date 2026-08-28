@@ -1,0 +1,19 @@
+{
+  "name": "camera-ingest-preflight-site",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build:site": "vite build",
+    "build": "cargo build --release && npm run build:site",
+    "test:site": "vite build && playwright test",
+    "test": "cargo test && npm run test:site"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.10.2",
+    "@playwright/test": "1.58.2",
+    "typescript": "5.9.2",
+    "vite": "7.3.6"
+  }
+}

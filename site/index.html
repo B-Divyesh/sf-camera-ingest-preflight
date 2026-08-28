@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#082f49" />
+    <meta name="description" content="Read-only camera card scanner for format, preview, 360 projection, orientation, duplicate, camera and GPS risks before DAM import." />
+    <title>Camera Ingest Preflight — inspect before import</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/camera-blueprint.webp" as="image" type="image/webp" fetchpriority="high" />
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <div class="offline-notice" id="offline-notice" role="status" hidden>
+      <span>Offline. The demo and docs still work; license checks will resume when connected.</span>
+      <button class="text-button" id="retry-network" type="button">Retry</button>
+    </div>
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="Camera Ingest Preflight home">
+        <span class="aperture" aria-hidden="true"></span>
+        <span>CAMERA / PREFLIGHT</span>
+      </a>
+      <nav aria-label="Primary">
+        <a href="#checks">Checks</a>
+        <a href="#demo">Demo</a>
+        <a href="#install">Install</a>
+        <a href="#migration">Migration set</a>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="page-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span>FIELD SHEET 01</span> / READ-ONLY INSPECTION</p>
+          <h1 id="page-title">Know what will break <em>before</em> you import.</h1>
+          <p class="lede">Scan a camera card for unsupported originals, missing previews, 360° projection clues, orientation, duplicate bytes, camera names, and GPS risk—without changing a file.</p>
+          <div class="actions">
+            <a class="button primary" href="#install">Install the scanner</a>
+            <button class="button secondary" type="button" data-run-demo>Run sample scan</button>
+          </div>
+          <ul class="trust-line" aria-label="Product guarantees">
+            <li>Local</li><li>Read-only</li><li>GPS-redacted</li><li>Open source</li>
+          </ul>
+        </div>
+        <figure class="hero-figure">
+          <img src="/camera-blueprint.webp" alt="Cyanotype technical drawing of a camera, memory card, fisheye lens, panorama and orientation compass linked by inspection marks" width="1536" height="1024" fetchpriority="high" />
+          <figcaption>PLATE A — mixed-camera ingest assembly</figcaption>
+        </figure>
+      </section>
+
+      <section class="checks section-rule" id="checks" aria-labelledby="checks-title">
+        <div class="section-heading">
+          <p class="eyebrow">INSPECTION GRID / 07 CHECKS</p>
+          <h2 id="checks-title">A contact sheet for failure modes.</h2>
+          <p>Every regular file receives a SHA-256 fingerprint and a conservative, explainable verdict for your selected downstream profile.</p>
+        </div>
+        <ol class="check-grid">
+          <li><span>01</span><strong>Format gate</strong><p>Accepted, version-sensitive, or rejected for Generic, PhotoPrism, and Lightroom profiles.</p></li>
+          <li><span>02</span><strong>RAW preview</strong><p>Finds a bounded embedded JPEG so the library has something fast and faithful to display.</p></li>
+          <li><span>03</span><strong>360° projection</strong><p>Reads GPano XMP, near-2:1 dimensions, and cautious filename clues without pretending to stitch.</p></li>
+          <li><span>04</span><strong>Orientation</strong><p>Translates EXIF values 1–8 and flags invalid rotation or mirror values.</p></li>
+          <li><span>05</span><strong>Duplicate bytes</strong><p>Hashes the whole file, not a filename, to surface card copies and burst-folder repeats.</p></li>
+          <li><span>06</span><strong>Camera identity</strong><p>Calls out absent, partial, or garbled make/model metadata before indexing.</p></li>
+          <li><span>07</span><strong>Location privacy</strong><p>Reports GPS presence while redacting coordinates unless you explicitly include them.</p></li>
+        </ol>
+      </section>
+
+      <section class="demo section-rule" id="demo" aria-labelledby="demo-title">
+        <div class="demo-toolbar">
+          <div>
+            <p class="eyebrow">RECORDED FIELD RUN / SAMPLE CARD</p>
+            <h2 id="demo-title">See the report before you install.</h2>
+          </div>
+          <div class="demo-controls">
+            <label for="profile">Downstream profile</label>
+            <select id="profile">
+              <option value="photoprism">PhotoPrism</option>
+              <option value="lightroom">Lightroom</option>
+              <option value="generic">Generic DAM</option>
+            </select>
+            <button class="button primary compact" type="button" data-run-demo>Run sample scan</button>
+          </div>
+        </div>
+        <div class="report-shell" aria-live="polite" aria-busy="false">
+          <div class="report-empty" id="report-empty">
+            <span class="reticle" aria-hidden="true"></span>
+            <h3>Card waiting at /Volumes/360_MIXED</h3>
+            <p>Choose a profile and run the sample. No local files are selected or uploaded.</p>
+          </div>
+          <div class="report-loading" id="report-loading" hidden>
+            <span class="scan-line" aria-hidden="true"></span>
+            <p>Hashing 4 originals and reading documented metadata…</p>
+          </div>
+          <div class="report-error" id="report-error" role="alert" hidden>
+            <h3>The sample could not be rendered.</h3>
+            <p>Reload the page or use the CLI example below; your files are unaffected.</p>
+          </div>
+          <div id="report-results" hidden>
+            <div class="report-summary">
+              <p><span id="report-profile">PHOTOPRISM</span> / GPS COORDINATES REDACTED</p>
+              <dl>
+                <div><dt>Files</dt><dd>4</dd></div>
+                <div><dt>Ready</dt><dd class="pass">1</dd></div>
+                <div><dt>Review</dt><dd class="warn">2</dd></div>
+                <div><dt>Reject</dt><dd class="fault">1</dd></div>
+              </dl>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <caption>Sample scan results. Each row names the file, verdict, format, preview, projection, camera and issue.</caption>
+                <thead><tr><th scope="col">Verdict</th><th scope="col">Original</th><th scope="col">Preview</th><th scope="col">Projection</th><th scope="col">Camera</th><th scope="col">Finding</th></tr></thead>
+                <tbody id="report-body"></tbody>
+              </table>
+            </div>
+            <p class="report-note"><span aria-hidden="true">⌖</span> 2 files contain GPS metadata. Coordinates are absent from the report.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="install section-rule" id="install" aria-labelledby="install-title">
+        <div class="section-heading">
+          <p class="eyebrow">INSTALLATION / RUST 1.85+</p>
+          <h2 id="install-title">One binary. One honest exit code.</h2>
+          <p>Exit 0 means import-ready, 1 means review the findings, and 2 means the folder could not be scanned. Symlinks are never followed.</p>
+        </div>
+        <div class="terminal" aria-label="Command line installation example">
+          <div class="terminal-bar"><span>LOCAL SHELL</span><button class="copy-button" type="button" data-copy="cargo install --git https://github.com/B-Divyesh/sf-camera-ingest-preflight">Copy install command</button></div>
+          <pre><code><span class="prompt">$</span> cargo install --git https://github.com/B-Divyesh/sf-camera-ingest-preflight
+<span class="prompt">$</span> camera-ingest-preflight scan /Volumes/CARD \
+    --profile photoprism --json preflight.json
+
+FILES   287   READY   271   REVIEW    13   REJECT     3
+GPS      42 file(s); exact coordinates redacted.</code></pre>
+        </div>
+        <p class="copy-status" id="copy-status" aria-live="polite"></p>
+        <div class="install-links">
+          <a href="https://github.com/B-Divyesh/sf-camera-ingest-preflight">Source and release binaries <span aria-hidden="true">→</span></a>
+          <a href="https://github.com/B-Divyesh/sf-camera-ingest-preflight#report-contract">JSON report contract <span aria-hidden="true">→</span></a>
+        </div>
+      </section>
+
+      <section class="migration section-rule" id="migration" aria-labelledby="migration-title">
+        <div class="migration-copy">
+          <p class="eyebrow">OPTIONAL MIGRATION SET / ONE-TIME</p>
+          <h2 id="migration-title">Turn findings into a migration brief.</h2>
+          <p>The scanner, every safety check, and JSON/CSV export stay free. A one-time <strong>$29</strong> unlock adds printable PhotoPrism and Lightroom triage briefs, saved report presets, and format-specific handoff notes.</p>
+          <ul class="tick-list">
+            <li>Prioritized convert / keep / quarantine queues</li>
+            <li>Printable location-redacted technician brief</li>
+            <li>Saved migration report layouts on this device</li>
+          </ul>
+          <p class="merchant-note">One-time purchase. Sociobot/Dodo is the merchant of record; refunds are handled there and revoke the license.</p>
+        </div>
+        <div class="license-panel">
+          <div id="locked-view">
+            <p class="plate-label">PRESET DRAWER / LOCKED</p>
+            <a class="button primary wide" href="https://api.sociobot.in/api/v1/products/camera-ingest-preflight/checkout">Buy migration set — $29</a>
+            <button class="text-button restore-toggle" type="button" aria-expanded="false" aria-controls="restore-form">Have a license? Restore it</button>
+            <form id="restore-form" hidden novalidate>
+              <label for="license-token">License token</label>
+              <div class="restore-row">
+                <input id="license-token" name="license" type="text" autocomplete="off" spellcheck="false" required aria-describedby="license-message" />
+                <button class="button secondary compact" type="submit">Verify license</button>
+              </div>
+            </form>
+          </div>
+          <div id="unlocked-view" hidden>
+            <p class="plate-label pass">PRESET DRAWER / UNLOCKED</p>
+            <h3>Migration set is active.</h3>
+            <p>Preset layouts are stored locally on this browser. The free CLI remains unchanged.</p>
+            <button class="button secondary" id="forget-license" type="button">Forget license on this device</button>
+          </div>
+          <p id="license-message" class="license-message" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="boundary section-rule" aria-labelledby="boundary-title">
+        <p class="eyebrow">BOUNDARY CONDITIONS</p>
+        <h2 id="boundary-title">It inspects. It does not invent.</h2>
+        <div class="boundary-grid">
+          <p><strong>No stitching.</strong> Projection clues tell you which workflow to choose; originals remain untouched.</p>
+          <p><strong>No mystery codecs.</strong> Proprietary Insta360 originals are flagged honestly instead of decoded badly.</p>
+          <p><strong>No library mutation.</strong> This happens before import. Nothing is indexed, renamed, moved, or “fixed.”</p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Camera Ingest Preflight <span>/</span> v0.1.0 <span>/</span> MIT</p>
+      <nav aria-label="Legal">
+        <a href="/privacy/">Privacy</a>
+        <a href="/terms/">Terms</a>
+        <a href="https://github.com/B-Divyesh/sf-camera-ingest-preflight">GitHub</a>
+      </nav>
+    </footer>
+  </body>
+</html>

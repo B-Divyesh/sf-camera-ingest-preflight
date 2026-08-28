@@ -1,0 +1,7 @@
+.legal-main { max-width: 820px; min-height: calc(100vh - 220px); padding-block: 96px 128px; overflow: visible; }
+.legal-main h1 { color: var(--amber); }
+.legal-main h2 { margin-top: 56px; margin-bottom: 16px; font-size: 1.75rem; letter-spacing: -.02em; }
+.legal-main p { max-width: 68ch; color: var(--muted); }
+.legal-main code { padding: 2px 5px; color: var(--cyan); background: var(--deep); }
+.legal-main a { color: var(--cyan); }
+@media (max-width: 640px) { .legal-main { padding-block: 64px 96px; } }
