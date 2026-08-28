@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Prevented explicitly requested JSON and CSV report files inside a scanned
+  folder from being re-ingested on later scans.
+
 All notable changes follow semantic versioning.
 
 ## 0.1.0 — 2026-08-28

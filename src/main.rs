@@ -1,5 +1,5 @@
 use camera_ingest_preflight::{
-    Profile, Report, ScanOptions, Severity, SupportStatus, needs_review, scan,
+    Profile, Report, ScanOptions, Severity, SupportStatus, needs_review, scan_excluding_paths,
 };
 use clap::{Parser, Subcommand};
 use std::fs;
@@ -69,11 +69,21 @@ fn run() -> Result<bool, String> {
             include_gps,
             quiet,
         } => {
-            let report = scan(&ScanOptions {
-                root: folder,
-                profile,
-                include_gps,
-            })?;
+            let output_destinations = json
+                .as_deref()
+                .filter(|destination| *destination != "-")
+                .map(PathBuf::from)
+                .into_iter()
+                .chain(csv.iter().cloned())
+                .collect::<Vec<_>>();
+            let report = scan_excluding_paths(
+                &ScanOptions {
+                    root: folder,
+                    profile,
+                    include_gps,
+                },
+                &output_destinations,
+            )?;
             if !quiet {
                 print_human(&report);
             }

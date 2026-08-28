@@ -29,6 +29,10 @@ Write a machine-readable report while keeping coordinates private:
 camera-ingest-preflight scan /media/CARD --profile photoprism --json report.json
 ```
 
+When an explicitly named JSON or CSV report is saved inside the scanned folder,
+the scanner excludes that exact destination on later runs. Other files in the
+folder remain inspected normally.
+
 Include exact coordinates only when the report stays private:
 
 ```sh

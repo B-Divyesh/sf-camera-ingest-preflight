@@ -6,7 +6,7 @@
 use exif::{In, Reader as ExifReader, Tag, Value};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::{self, BufReader, Read};
 use std::path::{Path, PathBuf};
@@ -193,6 +193,18 @@ struct Metadata {
 
 /// Scan a directory without following symlinks or modifying originals.
 pub fn scan(options: &ScanOptions) -> Result<Report, String> {
+    scan_excluding_paths(options, &[])
+}
+
+/// Scan a directory without following symlinks or modifying originals.
+///
+/// `excluded_paths` is intentionally an exact list rather than an extension
+/// filter. It lets the CLI omit a report destination inside the scanned folder
+/// without hiding a photographer's unrelated JSON or CSV files.
+pub fn scan_excluding_paths(
+    options: &ScanOptions,
+    excluded_paths: &[PathBuf],
+) -> Result<Report, String> {
     let root = options
         .root
         .canonicalize()
@@ -201,10 +213,18 @@ pub fn scan(options: &ScanOptions) -> Result<Report, String> {
         return Err(format!("'{}' is not a directory", root.display()));
     }
 
+    let excluded_paths = excluded_paths
+        .iter()
+        .filter_map(|path| resolve_output_path(path).ok())
+        .filter(|path| path.starts_with(&root))
+        .collect::<HashSet<_>>();
+
     let mut paths = Vec::new();
     for entry in WalkDir::new(&root).follow_links(false).sort_by_file_name() {
         match entry {
-            Ok(item) if item.file_type().is_file() => paths.push(item.into_path()),
+            Ok(item) if item.file_type().is_file() && !excluded_paths.contains(item.path()) => {
+                paths.push(item.into_path())
+            }
             Ok(_) => {}
             Err(error) => return Err(format!("could not walk '{}': {error}", root.display())),
         }
@@ -273,6 +293,28 @@ pub fn scan(options: &ScanOptions) -> Result<Report, String> {
         summary,
         files,
     })
+}
+
+/// Resolve an existing output through symlinks, or resolve its existing parent
+/// for the first run before the file has been created. A later write remains
+/// responsible for reporting an invalid destination to the user.
+fn resolve_output_path(path: &Path) -> io::Result<PathBuf> {
+    if path.exists() {
+        return path.canonicalize();
+    }
+
+    let absolute = if path.is_absolute() {
+        path.to_path_buf()
+    } else {
+        std::env::current_dir()?.join(path)
+    };
+    let parent = absolute
+        .parent()
+        .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "output path has no parent"))?;
+    let name = absolute.file_name().ok_or_else(|| {
+        io::Error::new(io::ErrorKind::InvalidInput, "output path has no file name")
+    })?;
+    Ok(parent.canonicalize()?.join(name))
 }
 
 fn inspect_file(
