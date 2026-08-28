@@ -38,7 +38,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 .site-header, footer { position: relative; z-index: 2; max-width: var(--max); margin: auto; padding: 24px clamp(24px, 5vw, 64px); display: flex; align-items: center; justify-content: space-between; gap: 32px; }
 .site-header { min-height: 96px; border-bottom: 1px solid var(--line); }
-.wordmark { display: inline-flex; gap: 12px; align-items: center; font: 700 13px/1.1 "SFMono-Regular", Consolas, monospace; letter-spacing: .12em; text-decoration: none; }
+.wordmark { display: inline-flex; min-width: 44px; min-height: 44px; gap: 12px; align-items: center; padding-block: 8px; font: 700 13px/1.1 "SFMono-Regular", Consolas, monospace; letter-spacing: .12em; text-decoration: none; }
 .aperture { width: 28px; aspect-ratio: 1; border: 1px solid var(--cyan); border-radius: 50%; background: conic-gradient(from 15deg, transparent 0 15%, var(--cyan) 15% 17%, transparent 17% 32%, var(--cyan) 32% 34%, transparent 34% 49%, var(--cyan) 49% 51%, transparent 51% 66%, var(--cyan) 66% 68%, transparent 68% 83%, var(--cyan) 83% 85%, transparent 85%); }
 .site-header nav, footer nav { display: flex; gap: 24px; align-items: center; }
 .site-header nav a, footer a { min-height: 44px; display: inline-flex; align-items: center; color: var(--muted); font-weight: 700; text-decoration: none; }

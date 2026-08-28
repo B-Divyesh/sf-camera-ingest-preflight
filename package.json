@@ -5,15 +5,21 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
+    "preview": "vite preview --host 0.0.0.0",
     "build:site": "vite build",
     "build": "cargo build --release && npm run build:site",
     "test:site": "vite build && playwright test",
-    "test": "cargo test && npm run test:site"
+    "test": "cargo test && npm run test:site",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.10.2",
     "@playwright/test": "1.58.2",
+    "@types/node": "22.18.10",
     "typescript": "5.9.2",
     "vite": "7.3.6"
+  },
+  "overrides": {
+    "playwright-core": "1.58.2"
   }
 }

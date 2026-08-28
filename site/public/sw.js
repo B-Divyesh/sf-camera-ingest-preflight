@@ -1,5 +1,5 @@
-const cacheName = "camera-preflight-shell-v1";
-const shell = ["/", "/privacy/", "/terms/", "/camera-blueprint.webp", "/favicon.svg"];
+const cacheName = "camera-preflight-shell-v2";
+const shell = __PRECACHE_MANIFEST__;
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(cacheName).then((cache) => cache.addAll(shell)).then(() => self.skipWaiting()));
@@ -11,8 +11,17 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET" || new URL(event.request.url).origin !== self.location.origin) return;
-  event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => {
-    if (response.ok) caches.open(cacheName).then((cache) => cache.put(event.request, response.clone()));
+  const fromCacheOrNetwork = caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => {
+    if (response.ok) void caches.open(cacheName).then((cache) => cache.put(event.request, response.clone()));
     return response;
-  }).catch(() => caches.match("/"))));
+  }));
+
+  // Only document navigations may fall back to the cached shell. Returning HTML
+  // for a missing JS or CSS file makes a first offline reload unusable.
+  if (event.request.mode === "navigate") {
+    event.respondWith(fromCacheOrNetwork.catch(() => caches.match("/")));
+    return;
+  }
+
+  event.respondWith(fromCacheOrNetwork);
 });
