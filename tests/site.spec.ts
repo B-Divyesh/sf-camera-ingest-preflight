@@ -36,6 +36,8 @@ test("mobile layout keeps the primary action and report operable", async ({ page
   await page.getByRole("button", { name: "Run sample scan" }).first().click();
   await expect(page.getByText("DCIM/RICOH_001.JPG")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations.filter((item) => ["serious", "critical"].includes(item.impact ?? ""))).toEqual([]);
 });
 
 test("skip link transfers keyboard focus to main and the mobile wordmark is touch sized", async ({ page }) => {
