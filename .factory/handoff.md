@@ -28,7 +28,7 @@ cargo package
 ```
 
 - `npm ci`: 23 packages, 0 vulnerabilities.
-- `npm test`: 7 Rust tests and 7 production-browser Playwright tests passed. Browser coverage includes desktop, 390×844 mobile, keyboard skip focus, serious/critical axe checks, legal pages, production offline reload, asset-fallback rejection, and deployment-policy configuration.
+- `npm test`: 7 Rust tests and 7 production-browser Playwright tests passed. Browser coverage includes desktop, 390×844 mobile serious/critical axe checks, keyboard skip focus, legal pages, production offline reload, asset-fallback rejection, and deployment-policy configuration.
 - `npm run typecheck`, `npm run build`, `cargo fmt --check`, `cargo clippy --all-targets --all-features -- -D warnings`, and `cargo package` passed.
 - Package output: `target/package/camera-ingest-preflight-0.1.0.crate` (about 15 KB). It is ready for factory publishing; it was not published.
 - Local mobile Lighthouse (Chrome 145, production preview): Performance 100, Accessibility 100, Best Practices 100, SEO 100; FCP 1.5 s, LCP 1.5 s, TBT 0 ms, CLS 0.
@@ -36,7 +36,11 @@ cargo package
 
 ## Deploy and live checks
 
-Deploy `dist/site/` with `/opt/fleet/lib/deploy-static.sh camera-ingest-preflight dist/site`. After deployment, verify the public URL with `/opt/fleet/lib/verify-url.sh`, response headers, and a fresh-profile offline reload.
+- Deployed `dist/site/` to Azure Static Web Apps with `/opt/fleet/lib/deploy-static.sh camera-ingest-preflight dist/site`; deployment ID `28ebe66f-f0f7-4665-b3c7-42df93e4946d` completed successfully.
+- Live URL: `https://camera-ingest-preflight.sociobot.in/`. The live HTML SHA-256 is `5af727b6b007e7c92f97ca57f3ef4cee16310d10811d90958d65aa3cbdc5b77a`, byte-identical to `dist/site/index.html`.
+- `/opt/fleet/lib/verify-url.sh` passed: 200 response, title, `lang=en`, one h1/main, zero missing image alts, zero console/page errors, and 642 ms load measurement.
+- Live 390×844 fresh-profile check passed: service worker controlled the page; offline reload remained interactive; sample scan rendered; axe reported zero serious/critical issues; console errors were zero.
+- Live `/` returns CSP, Permissions-Policy, nosniff, and referrer policy. Fingerprinted JS returns `Cache-Control: public, max-age=31536000, immutable` plus the same browser policies.
 
 ## Known limitations
 
