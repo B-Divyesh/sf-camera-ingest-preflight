@@ -1,0 +1,11 @@
+{
+  "slug": "camera-ingest-preflight",
+  "title": "Camera Ingest Preflight",
+  "artifact_class": "cli",
+  "user": "360° and mixed-camera photographers checking a card before DAM import",
+  "job": "Scan a local folder read-only and report format, preview, projection, orientation, duplicate, camera and GPS risks before import.",
+  "non_goals": ["stitching 360 media", "photo hosting", "replacing a DAM", "modifying originals"],
+  "success_measure": "Identify 95% of files a configured downstream library would reject or misclassify in a 50-card beta.",
+  "privacy": "Local-first. GPS coordinates are never included in exported reports unless explicitly requested.",
+  "monetization": "Free scan and JSON/CSV export; one-time paid migration report presets."
+}
