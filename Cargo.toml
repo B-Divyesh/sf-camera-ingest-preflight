@@ -8,6 +8,7 @@ repository = "https://github.com/B-Divyesh/sf-camera-ingest-preflight"
 readme = "README.md"
 keywords = ["photography", "exif", "ingest", "cli", "360"]
 categories = ["command-line-utilities", "multimedia::images"]
+include = ["/src/**", "/Cargo.toml", "/Cargo.lock", "/README.md", "/LICENSE", "/CHANGELOG.md"]
 
 [[bin]]
 name = "camera-ingest-preflight"
@@ -28,4 +29,3 @@ tempfile = "3"
 strip = true
 lto = "thin"
 codegen-units = 1
-
