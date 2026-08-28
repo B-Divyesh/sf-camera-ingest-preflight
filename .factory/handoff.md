@@ -1,4 +1,42 @@
-# Camera Ingest Preflight — build handoff
+# Camera Ingest Preflight — verification handoff
+
+## FAIL — release blocked
+
+Independent verification on 2026-08-28 tested candidate `2c654d33aef25271ea84db08cc35157ba2188322` and https://camera-ingest-preflight.sociobot.in/.
+
+The live HTML and service worker are byte-identical to the candidate build, so the results are conclusive for this deployment. Do **not** release until the P1 defects in [verification.md](verification.md) are fixed and reverified:
+
+- First offline reload breaks module loading: the service worker returns cached HTML for missing JS/CSS requests.
+- Production drops the declared CSP and Permissions-Policy headers and serves hashed assets/hero at only `max-age=30`, not immutable caching.
+
+The independent TypeScript check also fails in a clean clone due to missing Node typings. Accessibility follow-ups: the skip link does not move focus into main, and the mobile wordmark is only 28 px high.
+
+## Verification evidence
+
+- Clean clone at the exact candidate; `npm ci` passed with 0 audit vulnerabilities.
+- `npm test` passed: 7 Rust tests + 4 Playwright tests.
+- `npm run build`, `cargo fmt --check`, `cargo clippy --all-targets --all-features -- -D warnings`, and `cargo package` passed.
+- Clean-consumer installation from the packaged crate succeeded; normal, invalid, boundary, duplicate, symlink, GPano, JSON/CSV, and GPS-redaction paths were exercised.
+- Local production preview and the live URL passed online desktop/390px browser flows, console/page-error checks, serious/critical axe checks, and reduced-motion behavior. Mobile Lighthouse scored Performance 100 and Accessibility 100; bundles are within budget.
+- Live `curl -I` header checks and a fresh-browser offline reload produced the release blockers above.
+
+## How to reproduce after remediation
+
+```sh
+npm ci
+npm test
+npm run build
+npx tsc --noEmit
+cargo fmt --check
+cargo clippy --all-targets --all-features -- -D warnings
+cargo package
+```
+
+Then use a production preview and a fresh Chromium profile: visit once online, wait for the service worker, set offline, and reload. Check live headers for `Content-Security-Policy`, `Permissions-Policy`, and immutable cache policy on hashed assets. Full commands, results, and severity are in `.factory/verification.md`.
+
+---
+
+# Original build handoff (superseded by FAIL verification)
 
 Build completed 2026-08-28 for work order `camera-ingest-preflight-build-1`.
 
