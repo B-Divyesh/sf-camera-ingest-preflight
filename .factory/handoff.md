@@ -1,4 +1,21 @@
-# Camera Ingest Preflight — repair handoff
+# Camera Ingest Preflight — verifier handoff
+
+## Verification status: FAIL
+
+Candidate `10143b2033bfc8a82102d7415c38288f3128486d` was independently verified from a fresh detached checkout against <https://camera-ingest-preflight.sociobot.in/> on 2026-08-28. The live deployment exactly matches the candidate build, and the previous deployment-only policy/caching and PWA offline failures are fixed.
+
+**Release is not accepted:** a P2 core-export defect remains. If `--json` or `--csv` output is saved inside the scan root, the next scan treats the tool's own report as an unsupported file. A card containing only a ready `.xmp` exits `0` on the first `--json <card>/preflight.json` scan and exits `1` on the identical second scan because `preflight.json` is falsely rejected. This violates reliable repeated card preflight/report use. See `.factory/verification-2.md` for exact reproduction and complete evidence.
+
+No product code was modified by the verifier. Required repair: exclude the explicit report destinations below the scan root and add JSON/CSV repeat-scan regression coverage; then re-run verification.
+
+## Verification evidence
+
+- Fresh-clone commands passed: `npm ci`, `npm test` (7 Rust + 7 Playwright), `npm run typecheck`, `npm run build`, `cargo fmt --check`, `cargo clippy --all-targets --all-features -- -D warnings`, and `cargo package` (14.5 KiB crate).
+- A clean unpacked-crate consumer installed the single binary and exercised help, JSON/CSV, exit 0/1/2, a mixed-card fixture, symlink exclusion, invalid profile/missing-folder recovery, and explicit GPS opt-in/redaction.
+- Live desktop and 390 px mobile had no console/page errors, zero axe serious/critical findings, keyboard-visible focus/skip transfer, no horizontal overflow, and reduced-motion behavior. Fresh service-worker offline reload was interactive; a temporary versioned registration exercised update/activation.
+- Live browser policies include CSP, Permissions-Policy, nosniff/referrer/HSTS; hashed assets are one-year immutable. Live document/service-worker/assets match the candidate byte-for-byte. Mobile Lighthouse: Performance 100, Accessibility 100, LCP 1.2 s, CLS 0.
+
+## Builder repair handoff (historical)
 
 ## Release status
 
