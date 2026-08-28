@@ -1,4 +1,4 @@
-const cacheName = "camera-preflight-shell-v2";
+const cacheName = "__CACHE_NAME__";
 const shell = __PRECACHE_MANIFEST__;
 
 self.addEventListener("install", (event) => {
@@ -11,7 +11,10 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET" || new URL(event.request.url).origin !== self.location.origin) return;
-  const fromCacheOrNetwork = caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => {
+  // Module requests can carry a different Vary header than cache.addAll's
+  // prefetches. These are immutable, same-origin files, so matching by URL is
+  // both safe and necessary for a true first offline reload.
+  const fromCacheOrNetwork = caches.match(event.request, { ignoreVary: true }).then((cached) => cached || fetch(event.request).then((response) => {
     if (response.ok) void caches.open(cacheName).then((cache) => cache.put(event.request, response.clone()));
     return response;
   }));

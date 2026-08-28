@@ -51,8 +51,13 @@ test("skip link transfers keyboard focus to main and the mobile wordmark is touc
 });
 
 test("production worker precaches executable assets and offline reload stays interactive", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
+  page.on("pageerror", (error) => errors.push(error.message));
   const worker = readFileSync(resolve(process.cwd(), "dist/site/sw.js"), "utf8");
   expect(worker).not.toContain("__PRECACHE_MANIFEST__");
+  expect(worker).not.toContain("__CACHE_NAME__");
+  expect(worker).toMatch(/const cacheName = "camera-preflight-shell-[a-f0-9]{12}"/);
 
   await page.goto("/");
   const executableAssets = await page.locator('script[type="module"][src], link[rel="stylesheet"][href]').evaluateAll((elements) => elements
@@ -70,7 +75,11 @@ test("production worker precaches executable assets and offline reload stays int
   expect(missingAsset.resolved).toBe(false);
   expect(missingAsset.body).not.toContain("<!doctype html");
 
+  // The deliberately missing asset above is expected to produce a browser
+  // network error. The reload itself must stay clean.
+  errors.length = 0;
   await page.reload({ waitUntil: "domcontentloaded" });
+  expect(errors).toEqual([]);
   await page.getByRole("button", { name: "Run sample scan" }).first().click();
   await expect(page.getByText("Vendor conversion needed")).toBeVisible();
 });

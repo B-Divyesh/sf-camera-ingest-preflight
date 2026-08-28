@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import type { Plugin } from "vite";
 import { readdir, readFile, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { resolve } from "node:path";
 
 const siteOutDir = resolve(__dirname, "dist/site");
@@ -19,11 +20,21 @@ function prebuiltServiceWorker(): Plugin {
       const shell = ["/", "/privacy/", "/terms/", "/camera-blueprint.webp", "/favicon.svg", ...assets];
       const worker = await readFile(workerPath, "utf8");
 
-      if (!worker.includes("__PRECACHE_MANIFEST__")) {
-        throw new Error("Service worker precache manifest placeholder is missing");
+      if (!worker.includes("__PRECACHE_MANIFEST__") || !worker.includes("__CACHE_NAME__")) {
+        throw new Error("Service worker build placeholders are missing");
       }
 
-      await writeFile(workerPath, worker.replace("__PRECACHE_MANIFEST__", JSON.stringify(shell)));
+      // A unique cache makes an update atomic: the new worker never fills a
+      // previous release's shell cache with responses intercepted by that old worker.
+      const revision = createHash("sha256");
+      for (const path of shell) {
+        const relative = path === "/" ? "index.html" : path.endsWith("/") ? `${path.slice(1)}index.html` : path.slice(1);
+        revision.update(await readFile(resolve(siteOutDir, relative)));
+      }
+      const cacheName = `camera-preflight-shell-${revision.digest("hex").slice(0, 12)}`;
+      await writeFile(workerPath, worker
+        .replace("__CACHE_NAME__", cacheName)
+        .replace("__PRECACHE_MANIFEST__", JSON.stringify(shell)));
     }
   };
 }
