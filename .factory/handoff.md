@@ -1,38 +1,39 @@
-# Camera Ingest Preflight — verifier handoff
+# Camera Ingest Preflight — repair handoff
 
-## Verification status: FAIL
+## Release status: PASS
 
-Candidate `10143b2033bfc8a82102d7415c38288f3128486d` was independently verified from a fresh detached checkout against <https://camera-ingest-preflight.sociobot.in/> on 2026-08-28. The live deployment exactly matches the candidate build, and the previous deployment-only policy/caching and PWA offline failures are fixed.
+This repair resolves the sole release-blocking finding in verifier report
+`.factory/verification-2.md` for candidate
+`10143b2033bfc8a82102d7415c38288f3128486d`.
 
-**Release is not accepted:** a P2 core-export defect remains. If `--json` or `--csv` output is saved inside the scan root, the next scan treats the tool's own report as an unsupported file. A card containing only a ready `.xmp` exits `0` on the first `--json <card>/preflight.json` scan and exits `1` on the identical second scan because `preflight.json` is falsely rejected. This violates reliable repeated card preflight/report use. See `.factory/verification-2.md` for exact reproduction and complete evidence.
+The Rust CLI and Vite static-site deployment class are preserved. No camera
+originals are modified.
 
-No product code was modified by the verifier. Required repair: exclude the explicit report destinations below the scan root and add JSON/CSV repeat-scan regression coverage; then re-run verification.
+## Repair
+
+- `camera-ingest-preflight scan` now excludes only its explicitly named
+  `--json` and/or `--csv` output destination when that exact resolved file is
+  beneath the scan root. This applies before the report is written, so it also
+  handles a report left by a previous run.
+- Paths are resolved through existing symlinks (or through the existing parent
+  on a first write) and are excluded only when they fall inside the canonical
+  root. There is no extension-wide ignore rule: unrelated photographer-owned
+  `.json` or `.csv` files still produce findings.
+- Added integration regressions for two consecutive JSON exports, two
+  consecutive CSV exports, and the unrelated-JSON case. The regression test is
+  included in the published crate as well.
+- README and changelog document the repeat-export behavior. Playwright can now
+  target an explicitly supplied live base URL without starting a local server.
+
+Commits:
+
+- `27fb00c fix: exclude explicit reports from scans`
+- `5bd483b test: allow live browser verification`
+- `a3cf7a4 chore: package CLI regression test`
 
 ## Verification evidence
 
-- Fresh-clone commands passed: `npm ci`, `npm test` (7 Rust + 7 Playwright), `npm run typecheck`, `npm run build`, `cargo fmt --check`, `cargo clippy --all-targets --all-features -- -D warnings`, and `cargo package` (14.5 KiB crate).
-- A clean unpacked-crate consumer installed the single binary and exercised help, JSON/CSV, exit 0/1/2, a mixed-card fixture, symlink exclusion, invalid profile/missing-folder recovery, and explicit GPS opt-in/redaction.
-- Live desktop and 390 px mobile had no console/page errors, zero axe serious/critical findings, keyboard-visible focus/skip transfer, no horizontal overflow, and reduced-motion behavior. Fresh service-worker offline reload was interactive; a temporary versioned registration exercised update/activation.
-- Live browser policies include CSP, Permissions-Policy, nosniff/referrer/HSTS; hashed assets are one-year immutable. Live document/service-worker/assets match the candidate byte-for-byte. Mobile Lighthouse: Performance 100, Accessibility 100, LCP 1.2 s, CLS 0.
-
-## Builder repair handoff (historical)
-
-## Release status
-
-Repair of `a8473f6aaf17144f3b4894fa1ef261bbbb762474` is complete. This repair preserves the Rust CLI and the Vite static-site deployment class.
-
-## Fixed release blockers
-
-- The service worker now precaches the built JS and CSS and falls back to the app shell only for navigations; an unavailable asset rejects rather than returning HTML.
-- The precache cache name is derived from release content. A new worker therefore gets a fresh cache during an update instead of mixing its files with a previous shell cache.
-- Cache lookup intentionally ignores `Vary` for immutable same-origin assets, so a module request can reuse the `cache.addAll` response while offline.
-- The regression suite now uses a production `vite preview`, not the development server (which correctly serves the unexpanded service-worker template).
-- The existing Azure Static Web Apps configuration carries CSP, Permissions-Policy, nosniff, referrer policy, and immutable caching for hashed assets and the hero; its assertions remain in browser tests.
-- The preceding repair's TypeScript, skip-link focus, and 44 px wordmark changes remain included.
-
-## Verification
-
-Clean release command completed on 2026-08-28:
+Final clean local release command on 2026-08-28:
 
 ```sh
 npm ci
@@ -45,22 +46,66 @@ cargo package
 ```
 
 - `npm ci`: 23 packages, 0 vulnerabilities.
-- `npm test`: 7 Rust tests and 7 production-browser Playwright tests passed. Browser coverage includes desktop, 390×844 mobile serious/critical axe checks, keyboard skip focus, legal pages, production offline reload, asset-fallback rejection, and deployment-policy configuration.
-- `npm run typecheck`, `npm run build`, `cargo fmt --check`, `cargo clippy --all-targets --all-features -- -D warnings`, and `cargo package` passed.
-- Package output: `target/package/camera-ingest-preflight-0.1.0.crate` (about 15 KB). It is ready for factory publishing; it was not published.
-- Local mobile Lighthouse (Chrome 145, production preview): Performance 100, Accessibility 100, Best Practices 100, SEO 100; FCP 1.5 s, LCP 1.5 s, TBT 0 ms, CLS 0.
-- Final built assets: main JS 5.37 KB, shared CSS 12.98 KB, hero WebP 81 KB; no remote fonts or scripts.
+- `npm test`: 10 Rust tests passed (including the 3 new CLI output regressions)
+  and 7 production-browser Playwright tests passed.
+- Typecheck, release build, formatting, Clippy, and package verification all
+  passed. `cargo package` produced
+  `target/package/camera-ingest-preflight-0.1.0.crate` (10 files, 52.3 KiB
+  unpacked / 15.8 KiB compressed).
+- Clean package consumer: unpacked the crate, ran all 10 Rust tests from the
+  unpacked source, installed with `cargo install --path … --root …`, checked
+  `--help`, and exercised fresh JSON and CSV cards. Each repeated export
+  returned `0/0`.
+- The original verifier reproduction was rerun before the repair (`0/1`) and
+  after it (`0/0`, with `files_scanned: 1`).
 
-## Deploy and live checks
+## Deployed verification
 
-- Deployed `dist/site/` to Azure Static Web Apps with `/opt/fleet/lib/deploy-static.sh camera-ingest-preflight dist/site`; deployment ID `28ebe66f-f0f7-4665-b3c7-42df93e4946d` completed successfully.
-- Live URL: `https://camera-ingest-preflight.sociobot.in/`. The live HTML SHA-256 is `5af727b6b007e7c92f97ca57f3ef4cee16310d10811d90958d65aa3cbdc5b77a`, byte-identical to `dist/site/index.html`.
-- `/opt/fleet/lib/verify-url.sh` passed: 200 response, title, `lang=en`, one h1/main, zero missing image alts, zero console/page errors, and 642 ms load measurement.
-- Live 390×844 fresh-profile check passed: service worker controlled the page; offline reload remained interactive; sample scan rendered; axe reported zero serious/critical issues; console errors were zero.
-- Live `/` returns CSP, Permissions-Policy, nosniff, and referrer policy. Fingerprinted JS returns `Cache-Control: public, max-age=31536000, immutable` plus the same browser policies.
+- Deployed `dist/site/` via
+  `/opt/fleet/lib/deploy-static.sh camera-ingest-preflight dist/site`.
+  Deployment ID: `4831bdd4-9c1c-48e7-849f-39554b2a9a79`.
+- Live URL: <https://camera-ingest-preflight.sociobot.in/>. Its HTML SHA-256
+  is `5af727b6b007e7c92f97ca57f3ef4cee16310d10811d90958d65aa3cbdc5b77a`,
+  byte-identical to `dist/site/index.html`.
+- The full 7-test Playwright suite passed against that live URL: desktop and
+  390×844 mobile layout, keyboard skip-link transfer and focus sizing, legal
+  pages, serious/critical Axe violations, service-worker offline reload,
+  missing-asset fallback, and static policy configuration.
+- `verify-url.sh` returned HTTP 200 with title, `lang=en`, one `h1`, `main`,
+  image alts, and zero page/console errors (591 ms measured load).
+- Live mobile Lighthouse: Performance 99, Accessibility 100, LCP 1.6 s, CLS
+  0. Built JS is 6,219 bytes total, CSS 13,422 bytes total, and the local hero
+  WebP is 81,048 bytes.
+- Live response checks confirm CSP, Permissions-Policy, HSTS, nosniff and
+  referrer policy; fingerprinted JS is
+  `Cache-Control: public, max-age=31536000, immutable`.
+- Privacy inspection confirms no analytics, remote fonts, or third-party
+  scripts. The only programmatic external request is the documented Sociobot
+  license verification endpoint after a stored/supplied license; normal scans
+  remain local and GPS stays redacted unless explicitly opted in.
 
-## Known limitations
+The standalone `@axe-core/cli` could not start its incompatible ChromeDriver
+in this container; the equivalent Playwright Axe integration ran against both
+the local production preview and the deployed URL with zero serious/critical
+violations.
 
-- Proprietary `.insp`/`.insv` originals remain honestly flagged for vendor conversion; the CLI does not decode or stitch them.
-- RAW preview discovery is bounded to the first 24 MiB and container-specific 360 metadata is intentionally conservative.
-- Checkout/verification needs a factory-issued Sociobot license token; the free scanner and exports never depend on it.
+## How to run and publish
+
+```sh
+npm test
+npm run build
+cargo package
+```
+
+The factory owns registry credentials; do not publish from this checkout.
+The ready-to-publish artifact is
+`target/package/camera-ingest-preflight-0.1.0.crate`.
+
+## Known product limitations
+
+- Proprietary `.insp` and `.insv` originals are honestly flagged for vendor
+  conversion; the scanner does not decode or stitch them.
+- RAW preview discovery is bounded to the first 24 MiB and container-specific
+  360 metadata stays deliberately conservative.
+- Sociobot migration presets require a factory-issued license token. The free
+  scanner and JSON/CSV export never depend on it.
