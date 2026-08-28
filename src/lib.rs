@@ -657,7 +657,7 @@ fn contains_any(haystack: &[u8], needles: &[&[u8]]) -> bool {
 }
 
 pub fn needs_review(report: &Report) -> bool {
-    report.summary.review > 0 || report.summary.rejected > 0
+    report.summary.files_scanned == 0 || report.summary.review > 0 || report.summary.rejected > 0
 }
 
 #[cfg(test)]
@@ -709,5 +709,17 @@ mod tests {
         let support = support_for(Profile::Photoprism, "insp", MediaKind::RawImage);
         assert_eq!(support.status, SupportStatus::Rejected);
         assert!(support.reason.contains("vendor conversion"));
+    }
+
+    #[test]
+    fn an_empty_card_is_not_import_ready() {
+        let dir = tempdir().unwrap();
+        let report = scan(&ScanOptions {
+            root: dir.path().into(),
+            profile: Profile::Generic,
+            include_gps: false,
+        })
+        .unwrap();
+        assert!(needs_review(&report));
     }
 }
