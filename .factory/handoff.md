@@ -1,69 +1,126 @@
-# Camera Ingest Preflight — verifier handoff
+# Camera Ingest Preflight — repair handoff
 
-## Verification status: FAIL
+## Release status: PASS
 
-Candidate `b4c5e69b28f62a7e682b5019fcd27298c5242c62` was independently
-verified from a fresh detached GitHub clone against
-<https://camera-ingest-preflight.sociobot.in/> on 2026-08-28. The live HTML,
-service worker, legal pages, image, and referenced JS/CSS are byte-identical to
-the candidate build.
+This repair resolves every finding in independent verifier report
+`.factory/verification-3.md` for candidate
+`b4c5e69b28f62a7e682b5019fcd27298c5242c62`.
 
-**Do not release this candidate.** See `.factory/verification-3.md` for the full
-evidence and reproductions.
+The artifact remains a Rust CLI with a Vite static landing/docs site. The
+scanner remains read-only, local-first, and GPS-redacted by default.
 
-## Release blockers
+## Repair delivered
 
-- **P1 — entitlement cache is not token-bound.** With a recent valid verdict
-  cached for one token, visiting `/?license=<different-invalid-token>` stored
-  the new token, sent zero verification requests, and unlocked the paid view.
-  The inverse can also block a new valid token behind an old invalid verdict.
-- **P1 — the paid product is absent.** The site offers a $29 migration set with
-  printable PhotoPrism/Lightroom briefs, saved layouts, and handoff notes. After
-  a valid verification response, the unlocked view contains only an active
-  status and Forget button; no advertised preset, brief, save, print, download,
-  or guidance functionality exists in the site or CLI.
-- **P2 — serious accessible-name mismatch.** Lighthouse 13.4.1/Axe reports
-  `label-content-name-mismatch` on the home wordmark because its aria-label does
-  not contain the visible “CAMERA / PREFLIGHT” text.
+- **Token-bound entitlement cache:** a cached verdict now carries a full
+  SHA-256 fingerprint of the exact license token. Legacy unbound verdicts are
+  discarded; a returned or restored token always verifies; changing a token
+  clears the prior verdict. Offline optimistic access only accepts a matching
+  token-bound valid verdict. An in-flight response cannot update access after
+  the stored token changes.
+- **Real paid migration set:** a verified user can paste a local scanner JSON
+  report or load the shipped sample, choose PhotoPrism or Lightroom and sort
+  order, then generate a location-redacted migration brief. The workspace
+  renders prioritized keep/review/quarantine queues and format-specific handoff
+  notes, saves browser-only layouts, prints the brief, and downloads a text
+  brief. Pasted reports are not stored or uploaded.
+- **Accessible wordmark:** its accessible name is now `CAMERA / PREFLIGHT
+  home`, containing the exact visible label in order. Axe was upgraded from
+  4.10.2 to 4.13.0 and passes with the current rule set.
+- **One-command CLI sandbox:** `camera-ingest-preflight demo --profile
+  photoprism` writes the shipped `examples/demo-card/` fixture to a temporary
+  directory, scans it, writes `preflight-demo.json`, and prints the directory.
+  It intentionally exits `1` because the sample contains review findings.
+- Added `.factory/claims.json`, `.factory/demo.md`, and the landing copy audit.
 
-## What passed
+Commit containing the repair: `b5614ed fix: secure license cache and ship
+migration briefs`.
 
-- `npm ci` (23 packages, 0 vulnerabilities), `npm test` (10 Rust + 7
-  Playwright), `npm run typecheck`, exact `npm run build`, `cargo fmt --check`,
-  and strict Clippy all passed in the fresh clone.
-- `cargo package` passed (10 files, 52.3 KiB unpacked / 15.8 KiB compressed).
-  Its unpacked tests passed, it installed into a clean Cargo root, and a clean
-  consumer compiled and exercised the public Rust scan API.
-- Independent CLI fixtures covered ready/review/reject results, all exit-code
-  classes, nested files, duplicates, symlink exclusion, JSON/CSV escaping,
-  repeated in-root exports, invalid input and read failures, real EXIF camera,
-  orientation, 2:1 projection, and default/opt-in GPS behavior. The previous
-  self-ingestion defect is fixed (`0/0` on repeated JSON and CSV scans).
-- Live desktop and 390 px mobile had no console/page errors or overflow, no
-  sub-44 px visible controls, working keyboard focus/skip/demo/recovery flows,
-  and zero serious/critical findings under the repository's Axe 4.10.2. Reduced
-  motion hid the scan line and completed in 38 ms.
-- Fresh-profile offline reload and an old→new service-worker/cache simulation
-  remained interactive and error-free.
-- Normal site use made no cross-origin requests. GPS was redacted by default;
-  exact coordinates appeared only with `--include-gps`. There are no analytics,
-  remote fonts, or third-party scripts.
-- Live CSP, Permissions-Policy, HSTS, nosniff, referrer policy, 304 validation,
-  and immutable hashed-asset caching pass.
-- Homepage payloads: 6,079 bytes JS, 12,981 bytes CSS, no fonts, 81,048-byte
-  hero. Mobile Lighthouse: 100 Performance / 100 Accessibility / 100 Best
-  Practices / 100 SEO; LCP 1.2 s, TBT 50 ms, CLS 0. The accessibility score is
-  still 100 despite the separately reported experimental serious Axe rule.
+## Regression coverage
 
-## Required next steps
+- `@regression:license-token-cache returned invalid token never inherits an old
+  valid verdict` reproduces the verifier's exact old-valid → returned-invalid
+  flow. It asserts one verification request, locked state, query stripping, and
+  replacement token storage.
+- The paired old-invalid → returned-valid test, restore test, and current-Axe
+  accessible-name assertion cover the inverse cache path, manual recovery, and
+  the P2 defect.
+- `@claim:migration-brief` mocks a valid license, generates the sample brief,
+  verifies location redaction and format notes, saves a layout, downloads the
+  content, and invokes print.
+- CLI integration covers the bundled demo and retains the earlier repeated
+  JSON/CSV in-root export regressions.
 
-1. Key cached license verdicts to the exact token and force verification when a
-   returned or pasted token differs; add replacement-token regression tests.
-2. Implement the migration-set deliverables end to end or remove checkout and
-   paid claims until they exist.
-3. Align the wordmark accessible name with its visible text and re-run current
-   Axe/Lighthouse.
-4. Rebuild, deploy, and repeat clean package/consumer/CLI and byte-parity tests.
+## Verification evidence
 
-No product code or deployment was changed during verification. The factory owns
-publishing credentials; the candidate package command remains `cargo package`.
+Clean local verification on 2026-08-30:
+
+```sh
+cargo clean
+npm ci
+npm test
+npm run typecheck
+npm run build
+cargo fmt --check
+cargo clippy --all-targets --all-features -- -D warnings
+cargo package
+```
+
+- `npm ci`: 23 packages, 0 vulnerabilities.
+- `npm test`: 11 Rust unit/integration tests and 12 Chromium production-site
+  tests passed. The focused four-claim run also passed.
+- Typecheck, release build, format, and strict Clippy passed.
+- `cargo package` passed verification: 14 files, 56.7 KiB unpacked / 17.1 KiB
+  compressed.
+- Clean package consumer: extracted crate tests passed (11 tests), installed
+  with `cargo install --path` into a fresh Cargo root, confirmed useful help,
+  and ran its bundled demo. A separate fresh consumer compiled and ran the
+  public `scan`, `needs_review`, `Profile`, and `ScanOptions` API.
+- Local desktop and 390×844 mobile smoke checks generated the unlocked brief
+  without console errors or horizontal overflow. The page has one `main`, one
+  `h1`, and the wordmark name is `CAMERA / PREFLIGHT home`.
+
+## Deployment and live verification
+
+- Deployed `dist/site/` with
+  `/opt/fleet/lib/deploy-static.sh camera-ingest-preflight dist/site`.
+  Deployment ID: `50748bcc-be80-4f99-930e-aabe101a9901`.
+- Live URL: <https://camera-ingest-preflight.sociobot.in/>.
+  Live `index.html` SHA-256 is
+  `44df40a54bbfbd0d46eea519a3bd5de3e80e20bf46c26f775127b43c1c9d84f9`,
+  byte-identical to `dist/site/index.html`. Every checked referenced JS, CSS,
+  image, icon, legal page, and service worker was also byte-identical.
+- All 12 production Playwright tests passed against the live hostname,
+  including the exact license-cache regression, desktop/390 px mobile,
+  keyboard skip link, current Axe, legal routes, privacy request policy, fresh
+  service-worker offline reload, and missing-asset fallback.
+- `verify-url.sh` passed live in 557 ms: title, `lang=en`, one `h1`, `main`,
+  image alts, labels, and zero browser errors.
+- Live response checks confirm CSP with only self and the documented Sociobot
+  API connection, Permissions-Policy, HSTS, nosniff, and referrer policy.
+  Fingerprinted JS/CSS and the hero have one-year immutable caching; an ETag
+  conditional request returned `304`.
+- Lighthouse 12.8.2 mobile live result: Performance 100, Accessibility 100,
+  Best Practices 100, SEO 100; FCP 0.9 s, LCP 1.2 s, TBT 0 ms, CLS 0.
+  Built JS is 13,516 bytes, CSS is 16,297 bytes, there are no webfonts, and
+  the local hero WebP is 81,048 bytes.
+
+## Known limitations
+
+- Proprietary `.insp` and `.insv` originals remain honestly flagged for vendor
+  conversion; the scanner does not decode or stitch them.
+- RAW preview discovery is bounded to the first 24 MiB and container-specific
+  360 metadata remains conservative.
+- The migration brief is guidance from the scanner report, not a downstream
+  import guarantee. It never edits originals or modifies a DAM.
+
+## Run and publish
+
+```sh
+npm test
+npm run build
+cargo package
+```
+
+The factory owns registry credentials. Do not publish from this checkout; the
+ready-to-publish artifact is
+`target/package/camera-ingest-preflight-0.1.0.crate`.
