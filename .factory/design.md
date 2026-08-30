@@ -42,6 +42,8 @@ Useful motion only, 180–260 ms: control lift, disclosure, and a single scan-li
 ## Original asset plan and provenance
 
 - `site/public/camera-blueprint.webp`: generated specifically for this product using the factory image generator, then converted locally to WebP. It depicts a mixed-camera ingest plan as a technical cyanotype with card, lens, panorama, and metadata callouts. No text, logo, people, trademark, or stock asset.
+- `site/public/social-card.webp`: deterministic 1200 × 630 crop from the shipped blueprint asset for Open Graph and Twitter previews. It carries the same original cyanotype art and contains no readable text.
+- `site/public/apple-touch-icon.png`: hand-rendered 180 × 180 raster of the repository's own aperture mark on the blueprint field. It uses only the product palette and is licensed under MIT.
 - Diagram icons, registration marks, grid, and contact-sheet shapes are hand-authored in HTML/CSS and are licensed under the repository MIT license.
 
 Generation prompt (factory `factory-image` deployment, 2026-08-28):

@@ -1,19 +1,42 @@
 # Copy audit — 2026-08-30
 
-Source checked: `site/index.html`, the first screen, controls, status text, and
-the paid migration workspace. The homepage headline is **“Know what will break
-before you import.”** It names the job in seven words; the next two sentences
-name the input, checks, and read-only result.
+Source checked: `site/index.html`. Navigation labels, code blocks, table
+headers, form labels, and status fragments are not sentences. All visitor
+sentences below are at or below the 22-word limit. No banned plain-words term
+appears in the landing prose.
 
-## Results
-
-- First-screen headline: 7 words.
-- First-screen supporting sentences: 18 words and 5 words.
-- Landing prose was split anywhere a reader needed more than 22 words to reach
-  a sentence end. The status labels are fragments by design.
-- No banned marketing terms appear in the customer-facing landing text.
-- The paid description now names the actual output: a printable or downloaded
-  PhotoPrism/Lightroom brief, saved report layouts, and format-specific notes.
+| Words | Sentence |
+| ---: | --- |
+| 5 | Scan cards before DAM import. |
+| 15 | For 360° and mixed-camera photographers who need import risks before a DAM sees the card. |
+| 17 | Every regular file receives a SHA-256 fingerprint and a conservative, explainable verdict for your selected downstream profile. |
+| 13 | Accepted, version-sensitive, or rejected for Generic, PhotoPrism, and Lightroom profiles. |
+| 18 | Finds a bounded embedded JPEG so the library has something fast and faithful to display. |
+| 17 | Reads GPano XMP, near-2:1 dimensions, and cautious filename clues without pretending to stitch. |
+| 14 | Translates EXIF values 1–8 and flags invalid rotation or mirror values. |
+| 17 | Hashes the whole file, not a filename, to surface card copies and burst-folder repeats. |
+| 14 | Calls out absent, partial, or garbled make/model metadata before indexing. |
+| 14 | Reports GPS presence while redacting coordinates unless you explicitly include them. |
+| 7 | No local files are selected or uploaded. |
+| 13 | Reload the page or use the CLI example below; your files are unaffected. |
+| 12 | Each row names the file, verdict, format, preview, projection, camera and issue. |
+| 6 | Coordinates are absent from the report. |
+| 19 | This recording is generated during the site build by `camera-ingest-preflight demo --profile photoprism`. |
+| 4 | Exit 0 means import-ready. |
+| 5 | Exit 1 means review findings. |
+| 9 | Exit 2 means the folder could not be scanned. |
+| 4 | Symlinks are never followed. |
+| 11 | The scanner, every safety check, and JSON/CSV export stay free. |
+| 17 | A one-time $29 unlock adds printable PhotoPrism and Lightroom briefs, saved report layouts, and format-specific handoff notes. |
+| 15 | Sociobot/Dodo is the merchant of record; refunds are handled there and revoke the license. |
+| 9 | Build a location-redacted brief from a local CLI report. |
+| 5 | The free CLI remains unchanged. |
+| 9 | It stays in this browser and is never uploaded. |
+| 9 | Exact GPS coordinates are never copied into the brief. |
+| 11 | Projection clues tell you which workflow to choose; originals remain untouched. |
+| 10 | Proprietary Insta360 originals are flagged honestly instead of decoded badly. |
+| 4 | This happens before import. |
+| 7 | Nothing is indexed, renamed, moved, or “fixed.” |
 
 ## Terminology
 
@@ -21,11 +44,9 @@ name the input, checks, and read-only result.
 | --- | --- |
 | Camera input folder | card |
 | Scanner output | report |
+| Bundled sandbox | sample data / demo |
 | Paid output | migration brief |
 | Stored paid settings | saved report layout |
-| Downstream application | destination |
+| Downstream application | DAM / destination |
 | Location data | GPS coordinates |
 | Paid credential | license token |
-
-The legal pages retain only the terms required to explain storage, merchant of
-record, refunds, and license status. Their headings name the subject directly.

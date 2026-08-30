@@ -6,9 +6,10 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "preview": "vite preview --host 0.0.0.0",
-    "build:site": "vite build",
+    "build:demo-fixture": "node scripts/generate-demo-fixture.mjs",
+    "build:site": "npm run build:demo-fixture && vite build",
     "build": "cargo build --release && npm run build:site",
-    "test:site": "vite build && playwright test",
+    "test:site": "npm run build:site && playwright test",
     "test": "cargo test && npm run test:site",
     "typecheck": "tsc --noEmit"
   },

@@ -2,23 +2,30 @@
 
 ## CLI
 
-Run `camera-ingest-preflight demo --profile photoprism`. The command copies the
-bundled files in `examples/demo-card/` into a new temporary directory, scans
-that temporary card, writes `preflight-demo.json` beside it, and prints the
-directory path. It does not read, write, or retain any user card.
-
-The demo has one rendered 360 hint, one RAW preview risk, one proprietary INSV
-file, and one fisheye/camera-metadata risk. It exits `1` because the sample is
-intended to demonstrate review findings.
+Run `camera-ingest-preflight demo --profile photoprism`. The command copies
+`examples/demo-card/` into a new temporary directory, scans that copy, writes
+`preflight-demo.json`, and prints the directory path. It never reads or writes
+a real card. The bundled four-file card deliberately exits `1`: it reports 0
+ready, 3 review, and 1 reject.
 
 ## Site
 
-The first-screen **Run sample scan** action uses fixed records in
-`site/src/main.ts`. No browser storage is used for the sample itself and no
-file can be selected or uploaded. The optional paid workspace's **Load sample
-report** action uses a second fixed JSON fixture in that same local module.
+Open `/demo/` or `/?demo=1`. Both routes enter the isolated sample mode and
+immediately render the real bundled CLI report. The persistent banner says
+“Demo — sample data, nothing is saved” and provides **Reset demo** and **Start
+for real** controls.
 
-Paid saved layouts use the `sb_migration_layouts:camera-ingest-preflight`
-local-storage key. License tokens and token-bound verdicts use
-`sb_license:camera-ingest-preflight` and
-`sb_license_verdict:camera-ingest-preflight`. The pasted report is never stored.
+`scripts/generate-demo-fixture.mjs` runs the real CLI for Generic, PhotoPrism,
+and Lightroom during `npm run build:site`. It removes only the temporary folder
+path and timestamp before writing `site/public/demo-fixtures.json`; the report
+rows and terminal transcript are otherwise direct CLI output. The service
+worker precaches this fixture, so the demo also runs after the first offline
+visit.
+
+Demo mode does not read or write real license or saved-layout storage. It uses
+only in-memory sample state; no visitor file can be selected or uploaded.
+Leaving via **Start for real** discards that state. The normal paid workspace
+uses `sb_license:camera-ingest-preflight`,
+`sb_license_verdict:camera-ingest-preflight`, and
+`sb_migration_layouts:camera-ingest-preflight`; none of those keys are touched
+while the demo banner is present.

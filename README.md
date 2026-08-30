@@ -4,6 +4,9 @@
 
 The scanner never modifies originals. Reports redact GPS coordinates by default.
 
+Try the static site demo at <https://camera-ingest-preflight.sociobot.in/demo/>.
+It runs the shipped four-file card in an isolated sample mode and saves nothing.
+
 ## Install
 
 Build the single binary with stable Rust:
@@ -24,6 +27,9 @@ camera-ingest-preflight demo --profile photoprism
 The demo writes its sample card and `preflight-demo.json` into a new temporary
 folder and prints that folder's path. The shipped fixture lives in
 `examples/demo-card/`; it never reads a real card.
+
+The web demo is generated from the same CLI output during `npm run build:site`.
+Open `/demo/` or `/?demo=1` for its banner, reset control, and preloaded report.
 
 ## Usage
 
@@ -73,12 +79,15 @@ open CLI or gate privacy/safety.
 Requirements: stable Rust, Node 22+, and npm.
 
 ```sh
-npm install
+npm ci
 npm test
 npm run build
 ```
 
 `npm test` runs Rust unit/integration tests plus site tests. `npm run build` compiles the release CLI and Vite site; the deployable static site lands in `dist/site/`. Run the site locally with `npm run dev`.
+
+To create the ready-to-publish crate without publishing it, run `cargo package`.
+The factory owns registry credentials and deployment.
 
 ## Privacy and limitations
 

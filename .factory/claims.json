@@ -1,30 +1,100 @@
 [
   {
     "id": "sample-scan",
-    "claim": "The sample scan shows a four-file preflight report.",
-    "where": "Homepage demo",
+    "claim": "The demo shows the bundled CLI's four-file preflight report: 0 ready, 3 review, and 1 reject.",
+    "where": "/demo and homepage sample action",
     "test": "npm run build:site && npx playwright test --grep @claim:sample-scan",
-    "sandbox": "Fresh browser context; click Run sample scan; observe the report finding."
+    "sandbox": "Fresh browser context opens /demo; asserts four rendered rows, exact counts, and the generated CLI transcript."
   },
   {
-    "id": "offline-reload",
-    "claim": "Works offline after the first visit.",
-    "where": "Offline notice and README",
-    "test": "npm run build:site && npx playwright test --grep @claim:offline-reload",
-    "sandbox": "Dedicated browser context; wait for the worker, set offline, reload, and run the sample scan."
+    "id": "demo-sandbox",
+    "claim": "Demo mode uses sample data, saves nothing, and never reads real license or layout storage.",
+    "where": "/demo and ?demo=1 banner",
+    "test": "npm run build:site && npx playwright test --grep @claim:demo-sandbox",
+    "sandbox": "Fresh context with seeded real storage opens ?demo=1; asserts banner, reset, start-real link, no real-storage reads, and same-origin requests."
+  },
+  {
+    "id": "read-only-scan",
+    "claim": "The scanner leaves original files unchanged.",
+    "where": "homepage facts, README, privacy policy",
+    "test": "npm run build:site && npx playwright test --grep @claim:read-only-scan",
+    "sandbox": "Runs the bundled CLI demo and compares SHA-256 hashes of all shipped input files before and after."
+  },
+  {
+    "id": "gps-redaction",
+    "claim": "Reports redact GPS coordinates by default.",
+    "where": "homepage checks, README, privacy policy",
+    "test": "npm run build:site && npx playwright test --grep @claim:gps-redaction",
+    "sandbox": "Runs the bundled CLI demo and asserts GPS presence, the false inclusion flag, and no latitude or longitude fields."
+  },
+  {
+    "id": "sha256-report",
+    "claim": "Each scanned original receives a SHA-256 digest in the JSON report.",
+    "where": "homepage checks and README report contract",
+    "test": "npm run build:site && npx playwright test --grep @claim:sha256-report",
+    "sandbox": "Runs the bundled demo, checks four 64-character report digests, and recalculates each shipped input digest."
+  },
+  {
+    "id": "local-cli-privacy",
+    "claim": "The CLI has no telemetry, account, or network client dependency.",
+    "where": "privacy policy and README",
+    "test": "npm run build:site && npx playwright test --grep @claim:local-cli-privacy",
+    "sandbox": "Checks the shipped Rust manifest and scanner sources for network or telemetry clients, then runs the bundled local demo."
+  },
+  {
+    "id": "json-csv-exit-codes",
+    "claim": "The CLI exports JSON and CSV, does not follow symlinks, and uses exit code 2 for scan errors.",
+    "where": "installation section and README",
+    "test": "npm run build:site && npx playwright test --grep @claim:json-csv-exit-codes",
+    "sandbox": "Creates a temporary card with a sidecar and external symlink; checks both exports, omitted symlink, and a missing-folder error."
   },
   {
     "id": "local-demo-privacy",
-    "claim": "The website demo uses fixed sample records and does not upload visitor files.",
-    "where": "Homepage demo and Privacy",
+    "claim": "The website sample does not upload visitor files.",
+    "where": "homepage demo and privacy policy",
     "test": "npm run build:site && npx playwright test --grep @claim:local-demo-privacy",
-    "sandbox": "Fresh browser context; run the sample, record requests, and assert no cross-origin requests or file input."
+    "sandbox": "Fresh context runs the homepage sample while recording requests; asserts same-origin only and no file input."
+  },
+  {
+    "id": "offline-reload",
+    "claim": "The demo works offline after the first visit.",
+    "where": "README and offline notice",
+    "test": "npm run build:site && npx playwright test --grep @claim:offline-reload",
+    "sandbox": "Dedicated browser context opens ?demo=1, waits for the service worker, goes offline, reloads, and checks all four rows."
+  },
+  {
+    "id": "license-verification",
+    "claim": "A returned or restored license is verified immediately, and a cached verdict applies only to that token.",
+    "where": "privacy policy and migration set",
+    "test": "npm run build:site && npx playwright test --grep @claim:license-verification",
+    "sandbox": "Mocks verification for a replacement token and a restored token; verifies both calls and unlocked state."
+  },
+  {
+    "id": "license-daily-check",
+    "claim": "An unchanged verified license is checked with Sociobot at most once per day.",
+    "where": "privacy policy and README",
+    "test": "npm run build:site && npx playwright test --grep @claim:license-daily-check",
+    "sandbox": "Seeds a current valid token-bound verdict, intercepts verification, and asserts no request is made on load."
   },
   {
     "id": "migration-brief",
-    "claim": "The migration set generates printable and downloadable PhotoPrism or Lightroom briefs with saved layouts.",
-    "where": "Migration set and README",
+    "claim": "The migration set creates a printable and downloadable location-redacted PhotoPrism or Lightroom brief from a local report.",
+    "where": "migration set and README",
     "test": "npm run build:site && npx playwright test --grep @claim:migration-brief",
-    "sandbox": "Fresh browser context; mock one valid license result, load the shipped sample report, save a layout, print, and download the brief."
+    "sandbox": "Mocks a valid license, loads the CLI-derived sample, saves a layout, downloads the text, and invokes print."
+  },
+  {
+    "id": "pasted-report-privacy",
+    "claim": "A pasted migration report stays in the page and is not uploaded.",
+    "where": "migration workspace, privacy policy, README",
+    "test": "npm run build:site && npx playwright test --grep @claim:pasted-report-privacy",
+    "sandbox": "After a mocked license unlock, loads the local sample report and records only same-origin fixture traffic."
+  },
+  {
+    "id": "open-source",
+    "claim": "The scanner is MIT licensed and its source is available on GitHub.",
+    "where": "homepage facts, footer, README",
+    "test": "npm run build:site && npx playwright test --grep @claim:open-source",
+    "sandbox": "Reads the shipped MIT license and checks the homepage source link."
   }
 ]

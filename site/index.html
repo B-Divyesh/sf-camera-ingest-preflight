@@ -2,11 +2,25 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="build-id" content="__BUILD_ID__" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#082f49" />
-    <meta name="description" content="Read-only camera card scanner for format, preview, 360 projection, orientation, duplicate, camera and GPS risks before DAM import." />
-    <title>Camera Ingest Preflight — inspect before import</title>
+    <meta name="description" content="Scan a 360° or mixed-camera card for DAM import risks before any originals are changed." />
+    <link rel="canonical" href="https://camera-ingest-preflight.sociobot.in/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Camera Ingest Preflight — scan before import" />
+    <meta property="og:description" content="Scan a 360° or mixed-camera card for DAM import risks before any originals are changed." />
+    <meta property="og:url" content="https://camera-ingest-preflight.sociobot.in/" />
+    <meta property="og:image" content="https://camera-ingest-preflight.sociobot.in/social-card.webp" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Camera Ingest Preflight — scan before import" />
+    <meta name="twitter:description" content="Scan a 360° or mixed-camera card for DAM import risks before any originals are changed." />
+    <meta name="twitter:image" content="https://camera-ingest-preflight.sociobot.in/social-card.webp" />
+    <title>Camera Ingest Preflight — scan before import</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preload" href="/camera-blueprint.webp" as="image" type="image/webp" fetchpriority="high" />
     <script type="module" src="/src/main.ts"></script>
   </head>
@@ -16,6 +30,11 @@
       <span>Offline. The demo and docs still work; license checks will resume when connected.</span>
       <button class="text-button" id="retry-network" type="button">Retry</button>
     </div>
+    <aside class="demo-banner" id="demo-banner" aria-label="Demo controls" hidden>
+      <span><strong>Demo</strong> — sample data, nothing is saved.</span>
+      <button class="text-button" id="reset-demo" type="button">Reset demo</button>
+      <a class="text-button" href="/">Start for real</a>
+    </aside>
     <header class="site-header">
       <a class="wordmark" href="/" aria-label="CAMERA / PREFLIGHT home">
         <span class="aperture" aria-hidden="true"></span>
@@ -23,7 +42,7 @@
       </a>
       <nav aria-label="Primary">
         <a href="#checks">Checks</a>
-        <a href="#demo">Demo</a>
+        <a href="/demo/">Demo</a>
         <a href="#install">Install</a>
         <a href="#migration">Migration set</a>
       </nav>
@@ -33,11 +52,11 @@
       <section class="hero" aria-labelledby="page-title">
         <div class="hero-copy">
           <p class="eyebrow"><span>FIELD SHEET 01</span> / READ-ONLY INSPECTION</p>
-          <h1 id="page-title">Know what will break <em>before</em> you import.</h1>
-          <p class="lede">Scan a camera card for unsupported originals, preview risks, 360° clues, orientation, duplicates, camera names, and GPS risk. It never changes a file.</p>
+          <h1 id="page-title">Scan cards before DAM import.</h1>
+          <p class="lede">For 360° and mixed-camera photographers who need import risks before a DAM sees the card.</p>
           <div class="actions">
-            <a class="button primary" href="#install">Install the scanner</a>
-            <button class="button secondary" type="button" data-run-demo>Run sample scan</button>
+            <button class="button primary" type="button" data-run-demo>Try it with sample data</button>
+            <a class="button secondary" href="#install">Install the scanner</a>
           </div>
           <ul class="trust-line" aria-label="Product guarantees">
             <li>Local</li><li>Read-only</li><li>GPS-redacted</li><li>Open source</li>
@@ -79,7 +98,7 @@
               <option value="lightroom">Lightroom</option>
               <option value="generic">Generic DAM</option>
             </select>
-            <button class="button primary compact" type="button" data-run-demo>Run sample scan</button>
+            <button class="button primary compact" type="button" data-run-demo>Try it with sample data</button>
           </div>
         </div>
         <div class="report-shell" aria-live="polite" aria-busy="false">
@@ -100,10 +119,10 @@
             <div class="report-summary">
               <p><span id="report-profile">PHOTOPRISM</span> / GPS COORDINATES REDACTED</p>
               <dl>
-                <div><dt>Files</dt><dd>4</dd></div>
-                <div><dt>Ready</dt><dd class="pass">1</dd></div>
-                <div><dt>Review</dt><dd class="warn">2</dd></div>
-                <div><dt>Reject</dt><dd class="fault">1</dd></div>
+                <div><dt>Files</dt><dd id="summary-files">4</dd></div>
+                <div><dt>Ready</dt><dd class="pass" id="summary-ready">0</dd></div>
+                <div><dt>Review</dt><dd class="warn" id="summary-review">3</dd></div>
+                <div><dt>Reject</dt><dd class="fault" id="summary-reject">1</dd></div>
               </dl>
             </div>
             <div class="table-wrap">
@@ -113,7 +132,12 @@
                 <tbody id="report-body"></tbody>
               </table>
             </div>
-            <p class="report-note"><span aria-hidden="true">⌖</span> 2 files contain GPS metadata. Coordinates are absent from the report.</p>
+            <p class="report-note"><span aria-hidden="true">⌖</span> <span id="gps-file-count">1</span> file contains GPS metadata. Coordinates are absent from the report.</p>
+            <details class="demo-recording">
+              <summary>Show the bundled CLI demo output</summary>
+              <p>This recording is generated during the site build by <code>camera-ingest-preflight demo --profile photoprism</code>.</p>
+              <pre id="demo-transcript" aria-label="Bundled CLI demo output"></pre>
+            </details>
           </div>
         </div>
       </section>
@@ -234,7 +258,7 @@ GPS      42 file(s); exact coordinates redacted.</code></pre>
     </main>
 
     <footer>
-      <p>Camera Ingest Preflight <span>/</span> v0.1.0 <span>/</span> MIT</p>
+      <p>Camera Ingest Preflight <span>/</span> v0.1.0 <span>/</span> MIT <span>/</span> Built by Param Factory</p>
       <nav aria-label="Legal">
         <a href="/privacy/">Privacy</a>
         <a href="/terms/">Terms</a>

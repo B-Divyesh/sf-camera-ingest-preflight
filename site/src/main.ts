@@ -6,18 +6,21 @@ const licenseKey = `sb_license:${slug}`;
 const verdictKey = `sb_license_verdict:${slug}`;
 const layoutKey = `sb_migration_layouts:${slug}`;
 const day = 86_400_000;
+const pageUrl = new URL(window.location.href);
+const demoMode = pageUrl.pathname === "/demo" || pageUrl.pathname === "/demo/" || pageUrl.searchParams.get("demo") === "1";
 
 type Verdict = { valid: boolean; reason?: string; checkedAt: number; tokenFingerprint: string };
-type SampleRow = { verdict: string; className: string; file: string; format: string; preview: string; projection: string; camera: string; finding: string };
 type MigrationTarget = "photoprism" | "lightroom";
+type DemoProfile = MigrationTarget | "generic";
 type SavedLayout = { id: string; name: string; target: MigrationTarget; order: "priority" | "format"; savedAt: number };
 type ReportFile = {
   path?: string;
   extension?: string;
+  embedded_preview?: string;
   support?: { status?: string; reason?: string };
   findings?: Array<{ code?: string; message?: string; severity?: string }>;
   projection?: { kind?: string };
-  camera?: { status?: string };
+  camera?: { status?: string; make?: string | null; model?: string | null };
 };
 type MigrationReport = {
   root?: string;
@@ -26,32 +29,10 @@ type MigrationReport = {
   summary: { files_scanned: number; ready: number; review: number; rejected: number; duplicate_files?: number; gps_files?: number };
   files: ReportFile[];
 };
+type DemoFixture = { report: MigrationReport; transcript: string };
+type DemoFixtures = Record<DemoProfile, DemoFixture>;
 
-const samples: Record<string, SampleRow[]> = {
-  photoprism: [
-    { verdict: "READY", className: "pass", file: "DCIM/RICOH_001.JPG", format: "JPG", preview: "n/a", projection: "Equirect.", camera: "RICOH THETA Z1", finding: "GPano tag found" },
-    { verdict: "REVIEW", className: "warn", file: "DCIM/SONY_A73_042.ARW", format: "ARW", preview: "Missing", projection: "Unknown", camera: "SONY ILCE-7M3", finding: "No JPEG preview" },
-    { verdict: "REJECT", className: "fault", file: "DCIM/VID_018.INSV", format: "INSV", preview: "n/a", projection: "Candidate", camera: "n/a", finding: "Vendor conversion needed" },
-    { verdict: "REVIEW", className: "warn", file: "DCIM/FISHEYE_007.DNG", format: "DNG", preview: "Available", projection: "Fisheye", camera: "Make only", finding: "Camera model missing" }
-  ],
-  lightroom: [],
-  generic: []
-};
-samples.lightroom = samples.photoprism.map((row) => row.file.endsWith(".ARW") ? { ...row, verdict: "READY", className: "pass", finding: "Accepted RAW + preview risk" } : row);
-samples.generic = samples.photoprism.map((row) => row.file.endsWith(".DNG") ? { ...row, finding: "Verify fisheye handling" } : row);
-
-const sampleMigrationReport: MigrationReport = {
-  root: "/Volumes/360_MIXED",
-  profile: "photoprism",
-  privacy: { gps_coordinates_included: false },
-  summary: { files_scanned: 4, ready: 1, review: 2, rejected: 1, duplicate_files: 0, gps_files: 2 },
-  files: [
-    { path: "DCIM/RICOH_001.JPG", extension: "jpg", support: { status: "accepted" }, findings: [{ code: "projection_hint", message: "Equirectangular projection hint found.", severity: "info" }], projection: { kind: "equirectangular" }, camera: { status: "complete" } },
-    { path: "DCIM/SONY_A73_042.ARW", extension: "arw", support: { status: "review", reason: "RAW preview should be checked." }, findings: [{ code: "preview_missing", message: "No embedded JPEG preview found.", severity: "warning" }], camera: { status: "complete" } },
-    { path: "DCIM/VID_018.INSV", extension: "insv", support: { status: "rejected", reason: "Vendor conversion needed." }, findings: [{ code: "unsupported_format", message: "Vendor conversion needed.", severity: "error" }] },
-    { path: "DCIM/FISHEYE_007.DNG", extension: "dng", support: { status: "accepted" }, findings: [{ code: "camera_partial", message: "Only one of camera make/model is present.", severity: "warning" }], projection: { kind: "fisheye" }, camera: { status: "partial" } }
-  ]
-};
+let fixturePromise: Promise<DemoFixtures> | undefined;
 
 function byId<T extends HTMLElement>(id: string): T {
   const value = document.getElementById(id);
@@ -59,15 +40,43 @@ function byId<T extends HTMLElement>(id: string): T {
   return value as T;
 }
 
-function renderRows(profile: string): void {
+function demoFixtures(): Promise<DemoFixtures> {
+  fixturePromise ??= fetch("/demo-fixtures.json", { cache: "force-cache" }).then(async (response) => {
+    if (!response.ok) throw new Error("demo fixture unavailable");
+    return response.json() as Promise<DemoFixtures>;
+  });
+  return fixturePromise;
+}
+
+function fileVerdict(file: ReportFile): { label: string; className: string } {
+  const findings = file.findings ?? [];
+  if (file.support?.status === "rejected" || findings.some((finding) => finding.severity === "error")) return { label: "REJECT", className: "fault" };
+  if (file.support?.status === "review" || findings.some((finding) => finding.severity === "warning")) return { label: "REVIEW", className: "warn" };
+  return { label: "READY", className: "pass" };
+}
+
+function previewLabel(value?: string): string {
+  return value === "not_applicable" ? "n/a" : value ? value.replaceAll("_", " ") : "unknown";
+}
+
+function cameraLabel(file: ReportFile): string {
+  const camera = file.camera;
+  if (!camera || camera.status === "not_applicable") return "n/a";
+  if (camera.status === "missing") return "Missing";
+  return [camera.make, camera.model].filter(Boolean).join(" ") || camera.status || "unknown";
+}
+
+function renderRows(report: MigrationReport): void {
   const body = byId<HTMLTableSectionElement>("report-body");
-  const rows = samples[profile] ?? samples.photoprism;
-  body.replaceChildren(...rows.map((row) => {
+  body.replaceChildren(...report.files.map((file) => {
+    const verdict = fileVerdict(file);
+    const finding = (file.findings ?? []).find((item) => item.severity === "error" || item.severity === "warning")?.message
+      ?? file.support?.reason ?? "No finding.";
     const tr = document.createElement("tr");
     const values = [
-      `<span class="status ${row.className}">${row.verdict}</span>`,
-      `<strong>${row.file}</strong><small>${row.format}</small>`,
-      row.preview, row.projection, row.camera, row.finding
+      `<span class="status ${verdict.className}">${verdict.label}</span>`,
+      `<strong>${file.path ?? "Unnamed file"}</strong><small>${(file.extension ?? "unknown").toUpperCase()}</small>`,
+      previewLabel(file.embedded_preview), file.projection?.kind ?? "unknown", cameraLabel(file), finding
     ];
     const labels = ["Verdict", "Original", "Preview", "Projection", "Camera", "Finding"];
     values.forEach((value, index) => {
@@ -80,9 +89,18 @@ function renderRows(profile: string): void {
   }));
 }
 
-function runDemo(): void {
+function renderSummary(report: MigrationReport, profile: string): void {
+  byId("report-profile").textContent = profile.toUpperCase();
+  byId("summary-files").textContent = String(report.summary.files_scanned);
+  byId("summary-ready").textContent = String(report.summary.ready);
+  byId("summary-review").textContent = String(report.summary.review);
+  byId("summary-reject").textContent = String(report.summary.rejected);
+  byId("gps-file-count").textContent = String(report.summary.gps_files ?? 0);
+}
+
+async function runDemo(): Promise<void> {
   const shell = document.querySelector<HTMLElement>(".report-shell");
-  const profile = byId<HTMLSelectElement>("profile").value;
+  const profile = byId<HTMLSelectElement>("profile").value as DemoProfile;
   if (!shell) return;
   byId("report-empty").hidden = true;
   byId("report-error").hidden = true;
@@ -90,10 +108,12 @@ function runDemo(): void {
   byId("report-loading").hidden = false;
   shell.setAttribute("aria-busy", "true");
   document.querySelector("#demo")?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
-  window.setTimeout(() => {
+  const reveal = async () => {
     try {
-      renderRows(profile);
-      byId("report-profile").textContent = profile.toUpperCase();
+      const fixture = (await demoFixtures())[profile];
+      renderRows(fixture.report);
+      renderSummary(fixture.report, profile);
+      byId("demo-transcript").textContent = fixture.transcript;
       byId("report-loading").hidden = true;
       byId("report-results").hidden = false;
     } catch {
@@ -102,10 +122,12 @@ function runDemo(): void {
     } finally {
       shell.setAttribute("aria-busy", "false");
     }
-  }, matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 650);
+  };
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches || demoMode) await reveal();
+  else window.setTimeout(() => void reveal(), 650);
 }
 
-document.querySelectorAll<HTMLButtonElement>("[data-run-demo]").forEach((button) => button.addEventListener("click", runDemo));
+document.querySelectorAll<HTMLButtonElement>("[data-run-demo]").forEach((button) => button.addEventListener("click", () => void runDemo()));
 
 document.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((button) => {
   button.addEventListener("click", async () => {
@@ -190,49 +212,52 @@ function acceptReturnedLicense(): { token: string | null; force: boolean } {
   return { token: returned, force: true };
 }
 
-document.querySelector<HTMLButtonElement>(".restore-toggle")?.addEventListener("click", (event) => {
-  const button = event.currentTarget as HTMLButtonElement;
-  const form = byId<HTMLFormElement>("restore-form");
-  form.hidden = !form.hidden;
-  button.setAttribute("aria-expanded", String(!form.hidden));
-  if (!form.hidden) byId<HTMLInputElement>("license-token").focus();
-});
-
-byId<HTMLFormElement>("restore-form").addEventListener("submit", (event) => {
-  event.preventDefault();
-  const input = byId<HTMLInputElement>("license-token");
-  const token = input.value.trim();
-  if (token.length < 8) {
-    byId("license-message").textContent = "Paste the complete license token from your receipt.";
-    input.setAttribute("aria-invalid", "true");
-    input.focus();
-    return;
-  }
-  input.removeAttribute("aria-invalid");
-  storeLicense(token);
-  void verifyLicense(token, true);
-});
-
-byId("forget-license").addEventListener("click", () => {
-  localStorage.removeItem(licenseKey);
-  localStorage.removeItem(verdictKey);
-  showLicense(false, "License removed from this device.");
-});
-
 function updateNetwork(): void {
   byId("offline-notice").hidden = navigator.onLine;
 }
-window.addEventListener("online", updateNetwork);
-window.addEventListener("offline", updateNetwork);
-byId("retry-network").addEventListener("click", () => {
-  updateNetwork();
-  const token = localStorage.getItem(licenseKey);
-  if (token && navigator.onLine) void verifyLicense(token, true);
-});
-updateNetwork();
 
-const returnedLicense = acceptReturnedLicense();
-if (returnedLicense.token) void verifyLicense(returnedLicense.token, returnedLicense.force);
+function initializeLicense(): void {
+  document.querySelector<HTMLButtonElement>(".restore-toggle")?.addEventListener("click", (event) => {
+    const button = event.currentTarget as HTMLButtonElement;
+    const form = byId<HTMLFormElement>("restore-form");
+    form.hidden = !form.hidden;
+    button.setAttribute("aria-expanded", String(!form.hidden));
+    if (!form.hidden) byId<HTMLInputElement>("license-token").focus();
+  });
+
+  byId<HTMLFormElement>("restore-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const input = byId<HTMLInputElement>("license-token");
+    const token = input.value.trim();
+    if (token.length < 8) {
+      byId("license-message").textContent = "Paste the complete license token from your receipt.";
+      input.setAttribute("aria-invalid", "true");
+      input.focus();
+      return;
+    }
+    input.removeAttribute("aria-invalid");
+    storeLicense(token);
+    void verifyLicense(token, true);
+  });
+
+  byId("forget-license").addEventListener("click", () => {
+    localStorage.removeItem(licenseKey);
+    localStorage.removeItem(verdictKey);
+    showLicense(false, "License removed from this device.");
+  });
+
+  window.addEventListener("online", updateNetwork);
+  window.addEventListener("offline", updateNetwork);
+  byId("retry-network").addEventListener("click", () => {
+    updateNetwork();
+    const token = localStorage.getItem(licenseKey);
+    if (token && navigator.onLine) void verifyLicense(token, true);
+  });
+  updateNetwork();
+
+  const returnedLicense = acceptReturnedLicense();
+  if (returnedLicense.token) void verifyLicense(returnedLicense.token, returnedLicense.force);
+}
 
 function migrationTargetLabel(target: MigrationTarget): string {
   return target === "photoprism" ? "PhotoPrism" : "Lightroom";
@@ -444,8 +469,10 @@ function deleteLayout(): void {
 function initializeMigrationWorkspace(): void {
   renderLayouts();
   byId("load-sample-report").addEventListener("click", () => {
-    byId<HTMLTextAreaElement>("migration-report").value = JSON.stringify(sampleMigrationReport, null, 2);
-    generateMigrationBrief();
+    void demoFixtures().then((fixtures) => {
+      byId<HTMLTextAreaElement>("migration-report").value = JSON.stringify(fixtures.photoprism.report, null, 2);
+      generateMigrationBrief();
+    }).catch(() => setMigrationStatus("The bundled sample report could not load. Try again.", true));
   });
   byId("generate-brief").addEventListener("click", generateMigrationBrief);
   byId("save-layout").addEventListener("click", saveLayout);
@@ -463,7 +490,26 @@ function initializeMigrationWorkspace(): void {
   });
 }
 
-initializeMigrationWorkspace();
+function initializeDemoMode(): void {
+  if (!demoMode) return;
+  document.body.classList.add("demo-mode");
+  document.title = "Demo — Camera Ingest Preflight";
+  byId("demo-banner").hidden = false;
+  byId("migration").hidden = true;
+  byId("reset-demo").addEventListener("click", () => {
+    byId<HTMLSelectElement>("profile").value = "photoprism";
+    void runDemo();
+  });
+  void runDemo();
+}
+
+if (!demoMode) {
+  initializeLicense();
+  initializeMigrationWorkspace();
+} else {
+  updateNetwork();
+}
+initializeDemoMode();
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => void navigator.serviceWorker.register("/sw.js"));

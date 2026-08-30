@@ -1,0 +1,605 @@
+{
+  "generic": {
+    "report": {
+      "schema_version": "1.0",
+      "tool_version": "0.1.0",
+      "generated_unix_seconds": 0,
+      "root": "<temporary demo folder>/card",
+      "profile": "generic",
+      "privacy": {
+        "gps_coordinates_included": false,
+        "note": "GPS presence is reported; exact coordinates are redacted."
+      },
+      "summary": {
+        "files_scanned": 4,
+        "ready": 0,
+        "review": 3,
+        "rejected": 1,
+        "duplicate_files": 0,
+        "gps_files": 1
+      },
+      "files": [
+        {
+          "path": "DCIM/FISHEYE_007.DNG",
+          "bytes": 47,
+          "sha256": "8c1407d54a3cab869eb8dfc5dd1b8589f7fa1f378b809b94ade9b36115aa7041",
+          "extension": "dng",
+          "media_kind": "raw_image",
+          "support": {
+            "status": "accepted",
+            "reason": ".dng is listed by the selected generic profile."
+          },
+          "embedded_preview": "missing",
+          "orientation": {
+            "value": null,
+            "label": "not recorded",
+            "status": "missing"
+          },
+          "projection": {
+            "kind": "fisheye",
+            "evidence": [
+              "filename contains fisheye"
+            ]
+          },
+          "camera": {
+            "make": null,
+            "model": null,
+            "status": "missing"
+          },
+          "gps": {
+            "present": false,
+            "redacted": false
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "preview_missing",
+              "message": "No embedded JPEG preview found in the inspected RAW header."
+            },
+            {
+              "severity": "warning",
+              "code": "camera_missing",
+              "message": "Camera make and model are both missing."
+            },
+            {
+              "severity": "info",
+              "code": "projection_hint",
+              "message": "Likely fisheye media; verify downstream projection handling."
+            }
+          ]
+        },
+        {
+          "path": "DCIM/RICOH_001.JPG",
+          "bytes": 118,
+          "sha256": "4c15d1a1a790c087ec8befe8588fe1a7557945d30c77dfcea1ea4a59aafcdb2a",
+          "extension": "jpg",
+          "media_kind": "rendered_image",
+          "support": {
+            "status": "accepted",
+            "reason": ".jpg is listed by the selected generic profile."
+          },
+          "embedded_preview": "not_applicable",
+          "orientation": {
+            "value": null,
+            "label": "not recorded",
+            "status": "missing"
+          },
+          "projection": {
+            "kind": "equirectangular",
+            "evidence": [
+              "XMP GPano projection type"
+            ]
+          },
+          "camera": {
+            "make": null,
+            "model": null,
+            "status": "missing"
+          },
+          "gps": {
+            "present": true,
+            "redacted": true
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "camera_missing",
+              "message": "Camera make and model are both missing."
+            },
+            {
+              "severity": "info",
+              "code": "gps_present",
+              "message": "GPS metadata found; exact coordinates redacted."
+            },
+            {
+              "severity": "info",
+              "code": "projection_hint",
+              "message": "Likely equirectangular media; verify downstream projection handling."
+            }
+          ]
+        },
+        {
+          "path": "DCIM/SONY_A73_042.ARW",
+          "bytes": 89,
+          "sha256": "2e3d6ce5ee7138082431782dbc2885edce1aa3e19ed5b07636f62c38bb722ce6",
+          "extension": "arw",
+          "media_kind": "raw_image",
+          "support": {
+            "status": "accepted",
+            "reason": ".arw is listed by the selected generic profile."
+          },
+          "embedded_preview": "missing",
+          "orientation": {
+            "value": null,
+            "label": "not recorded",
+            "status": "missing"
+          },
+          "projection": {
+            "kind": "unknown",
+            "evidence": []
+          },
+          "camera": {
+            "make": null,
+            "model": null,
+            "status": "missing"
+          },
+          "gps": {
+            "present": false,
+            "redacted": false
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "preview_missing",
+              "message": "No embedded JPEG preview found in the inspected RAW header."
+            },
+            {
+              "severity": "warning",
+              "code": "camera_missing",
+              "message": "Camera make and model are both missing."
+            }
+          ]
+        },
+        {
+          "path": "DCIM/VID_018.INSV",
+          "bytes": 81,
+          "sha256": "f6463a9965dcd320c2b968d31442f57e6bb1d5b5df71eb537b28554cb7308201",
+          "extension": "insv",
+          "media_kind": "video",
+          "support": {
+            "status": "rejected",
+            "reason": "Proprietary Insta360 original requires vendor conversion or a tested downstream decoder."
+          },
+          "embedded_preview": "not_applicable",
+          "orientation": {
+            "value": null,
+            "label": "not recorded",
+            "status": "missing"
+          },
+          "projection": {
+            "kind": "unknown",
+            "evidence": []
+          },
+          "camera": {
+            "make": null,
+            "model": null,
+            "status": "not_applicable"
+          },
+          "gps": {
+            "present": false,
+            "redacted": false
+          },
+          "findings": [
+            {
+              "severity": "error",
+              "code": "unsupported_format",
+              "message": "Proprietary Insta360 original requires vendor conversion or a tested downstream decoder."
+            }
+          ]
+        }
+      ]
+    },
+    "transcript": "CAMERA INGEST PREFLIGHT  /  generic profile\nROOT  <temporary demo folder>/card\nFILES    4   READY    0   REVIEW    3   REJECT    1\n\n✓ REVIEW DCIM/FISHEYE_007.DNG                       .dng         47 bytes\n          preview_missing — No embedded JPEG preview found in the inspected RAW header.\n          camera_missing — Camera make and model are both missing.\n✓ REVIEW DCIM/RICOH_001.JPG                         .jpg        118 bytes\n          camera_missing — Camera make and model are both missing.\n✓ REVIEW DCIM/SONY_A73_042.ARW                      .arw         89 bytes\n          preview_missing — No embedded JPEG preview found in the inspected RAW header.\n          camera_missing — Camera make and model are both missing.\n× REJECT DCIM/VID_018.INSV                          .insv        81 bytes\n          unsupported_format — Proprietary Insta360 original requires vendor conversion or a tested downstream decoder.\n\nGPS   1 file(s); GPS presence is reported; exact coordinates are redacted.\nHASH  SHA-256 across every regular file; symlinks were not followed.\nDEMO   sample card and JSON report → <temporary demo folder>\n"
+  },
+  "photoprism": {
+    "report": {
+      "schema_version": "1.0",
+      "tool_version": "0.1.0",
+      "generated_unix_seconds": 0,
+      "root": "<temporary demo folder>/card",
+      "profile": "photoprism",
+      "privacy": {
+        "gps_coordinates_included": false,
+        "note": "GPS presence is reported; exact coordinates are redacted."
+      },
+      "summary": {
+        "files_scanned": 4,
+        "ready": 0,
+        "review": 3,
+        "rejected": 1,
+        "duplicate_files": 0,
+        "gps_files": 1
+      },
+      "files": [
+        {
+          "path": "DCIM/FISHEYE_007.DNG",
+          "bytes": 47,
+          "sha256": "8c1407d54a3cab869eb8dfc5dd1b8589f7fa1f378b809b94ade9b36115aa7041",
+          "extension": "dng",
+          "media_kind": "raw_image",
+          "support": {
+            "status": "accepted",
+            "reason": ".dng is listed by the selected photoprism profile."
+          },
+          "embedded_preview": "missing",
+          "orientation": {
+            "value": null,
+            "label": "not recorded",
+            "status": "missing"
+          },
+          "projection": {
+            "kind": "fisheye",
+            "evidence": [
+              "filename contains fisheye"
+            ]
+          },
+          "camera": {
+            "make": null,
+            "model": null,
+            "status": "missing"
+          },
+          "gps": {
+            "present": false,
+            "redacted": false
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "preview_missing",
+              "message": "No embedded JPEG preview found in the inspected RAW header."
+            },
+            {
+              "severity": "warning",
+              "code": "camera_missing",
+              "message": "Camera make and model are both missing."
+            },
+            {
+              "severity": "info",
+              "code": "projection_hint",
+              "message": "Likely fisheye media; verify downstream projection handling."
+            }
+          ]
+        },
+        {
+          "path": "DCIM/RICOH_001.JPG",
+          "bytes": 118,
+          "sha256": "4c15d1a1a790c087ec8befe8588fe1a7557945d30c77dfcea1ea4a59aafcdb2a",
+          "extension": "jpg",
+          "media_kind": "rendered_image",
+          "support": {
+            "status": "accepted",
+            "reason": ".jpg is listed by the selected photoprism profile."
+          },
+          "embedded_preview": "not_applicable",
+          "orientation": {
+            "value": null,
+            "label": "not recorded",
+            "status": "missing"
+          },
+          "projection": {
+            "kind": "equirectangular",
+            "evidence": [
+              "XMP GPano projection type"
+            ]
+          },
+          "camera": {
+            "make": null,
+            "model": null,
+            "status": "missing"
+          },
+          "gps": {
+            "present": true,
+            "redacted": true
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "camera_missing",
+              "message": "Camera make and model are both missing."
+            },
+            {
+              "severity": "info",
+              "code": "gps_present",
+              "message": "GPS metadata found; exact coordinates redacted."
+            },
+            {
+              "severity": "info",
+              "code": "projection_hint",
+              "message": "Likely equirectangular media; verify downstream projection handling."
+            }
+          ]
+        },
+        {
+          "path": "DCIM/SONY_A73_042.ARW",
+          "bytes": 89,
+          "sha256": "2e3d6ce5ee7138082431782dbc2885edce1aa3e19ed5b07636f62c38bb722ce6",
+          "extension": "arw",
+          "media_kind": "raw_image",
+          "support": {
+            "status": "accepted",
+            "reason": ".arw is listed by the selected photoprism profile."
+          },
+          "embedded_preview": "missing",
+          "orientation": {
+            "value": null,
+            "label": "not recorded",
+            "status": "missing"
+          },
+          "projection": {
+            "kind": "unknown",
+            "evidence": []
+          },
+          "camera": {
+            "make": null,
+            "model": null,
+            "status": "missing"
+          },
+          "gps": {
+            "present": false,
+            "redacted": false
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "preview_missing",
+              "message": "No embedded JPEG preview found in the inspected RAW header."
+            },
+            {
+              "severity": "warning",
+              "code": "camera_missing",
+              "message": "Camera make and model are both missing."
+            }
+          ]
+        },
+        {
+          "path": "DCIM/VID_018.INSV",
+          "bytes": 81,
+          "sha256": "f6463a9965dcd320c2b968d31442f57e6bb1d5b5df71eb537b28554cb7308201",
+          "extension": "insv",
+          "media_kind": "video",
+          "support": {
+            "status": "rejected",
+            "reason": "Proprietary Insta360 original requires vendor conversion or a tested downstream decoder."
+          },
+          "embedded_preview": "not_applicable",
+          "orientation": {
+            "value": null,
+            "label": "not recorded",
+            "status": "missing"
+          },
+          "projection": {
+            "kind": "unknown",
+            "evidence": []
+          },
+          "camera": {
+            "make": null,
+            "model": null,
+            "status": "not_applicable"
+          },
+          "gps": {
+            "present": false,
+            "redacted": false
+          },
+          "findings": [
+            {
+              "severity": "error",
+              "code": "unsupported_format",
+              "message": "Proprietary Insta360 original requires vendor conversion or a tested downstream decoder."
+            }
+          ]
+        }
+      ]
+    },
+    "transcript": "CAMERA INGEST PREFLIGHT  /  photoprism profile\nROOT  <temporary demo folder>/card\nFILES    4   READY    0   REVIEW    3   REJECT    1\n\n✓ REVIEW DCIM/FISHEYE_007.DNG                       .dng         47 bytes\n          preview_missing — No embedded JPEG preview found in the inspected RAW header.\n          camera_missing — Camera make and model are both missing.\n✓ REVIEW DCIM/RICOH_001.JPG                         .jpg        118 bytes\n          camera_missing — Camera make and model are both missing.\n✓ REVIEW DCIM/SONY_A73_042.ARW                      .arw         89 bytes\n          preview_missing — No embedded JPEG preview found in the inspected RAW header.\n          camera_missing — Camera make and model are both missing.\n× REJECT DCIM/VID_018.INSV                          .insv        81 bytes\n          unsupported_format — Proprietary Insta360 original requires vendor conversion or a tested downstream decoder.\n\nGPS   1 file(s); GPS presence is reported; exact coordinates are redacted.\nHASH  SHA-256 across every regular file; symlinks were not followed.\nDEMO   sample card and JSON report → <temporary demo folder>\n"
+  },
+  "lightroom": {
+    "report": {
+      "schema_version": "1.0",
+      "tool_version": "0.1.0",
+      "generated_unix_seconds": 0,
+      "root": "<temporary demo folder>/card",
+      "profile": "lightroom",
+      "privacy": {
+        "gps_coordinates_included": false,
+        "note": "GPS presence is reported; exact coordinates are redacted."
+      },
+      "summary": {
+        "files_scanned": 4,
+        "ready": 0,
+        "review": 3,
+        "rejected": 1,
+        "duplicate_files": 0,
+        "gps_files": 1
+      },
+      "files": [
+        {
+          "path": "DCIM/FISHEYE_007.DNG",
+          "bytes": 47,
+          "sha256": "8c1407d54a3cab869eb8dfc5dd1b8589f7fa1f378b809b94ade9b36115aa7041",
+          "extension": "dng",
+          "media_kind": "raw_image",
+          "support": {
+            "status": "accepted",
+            "reason": ".dng is listed by the selected lightroom profile."
+          },
+          "embedded_preview": "missing",
+          "orientation": {
+            "value": null,
+            "label": "not recorded",
+            "status": "missing"
+          },
+          "projection": {
+            "kind": "fisheye",
+            "evidence": [
+              "filename contains fisheye"
+            ]
+          },
+          "camera": {
+            "make": null,
+            "model": null,
+            "status": "missing"
+          },
+          "gps": {
+            "present": false,
+            "redacted": false
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "preview_missing",
+              "message": "No embedded JPEG preview found in the inspected RAW header."
+            },
+            {
+              "severity": "warning",
+              "code": "camera_missing",
+              "message": "Camera make and model are both missing."
+            },
+            {
+              "severity": "info",
+              "code": "projection_hint",
+              "message": "Likely fisheye media; verify downstream projection handling."
+            }
+          ]
+        },
+        {
+          "path": "DCIM/RICOH_001.JPG",
+          "bytes": 118,
+          "sha256": "4c15d1a1a790c087ec8befe8588fe1a7557945d30c77dfcea1ea4a59aafcdb2a",
+          "extension": "jpg",
+          "media_kind": "rendered_image",
+          "support": {
+            "status": "accepted",
+            "reason": ".jpg is listed by the selected lightroom profile."
+          },
+          "embedded_preview": "not_applicable",
+          "orientation": {
+            "value": null,
+            "label": "not recorded",
+            "status": "missing"
+          },
+          "projection": {
+            "kind": "equirectangular",
+            "evidence": [
+              "XMP GPano projection type"
+            ]
+          },
+          "camera": {
+            "make": null,
+            "model": null,
+            "status": "missing"
+          },
+          "gps": {
+            "present": true,
+            "redacted": true
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "camera_missing",
+              "message": "Camera make and model are both missing."
+            },
+            {
+              "severity": "info",
+              "code": "gps_present",
+              "message": "GPS metadata found; exact coordinates redacted."
+            },
+            {
+              "severity": "info",
+              "code": "projection_hint",
+              "message": "Likely equirectangular media; verify downstream projection handling."
+            }
+          ]
+        },
+        {
+          "path": "DCIM/SONY_A73_042.ARW",
+          "bytes": 89,
+          "sha256": "2e3d6ce5ee7138082431782dbc2885edce1aa3e19ed5b07636f62c38bb722ce6",
+          "extension": "arw",
+          "media_kind": "raw_image",
+          "support": {
+            "status": "accepted",
+            "reason": ".arw is listed by the selected lightroom profile."
+          },
+          "embedded_preview": "missing",
+          "orientation": {
+            "value": null,
+            "label": "not recorded",
+            "status": "missing"
+          },
+          "projection": {
+            "kind": "unknown",
+            "evidence": []
+          },
+          "camera": {
+            "make": null,
+            "model": null,
+            "status": "missing"
+          },
+          "gps": {
+            "present": false,
+            "redacted": false
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "preview_missing",
+              "message": "No embedded JPEG preview found in the inspected RAW header."
+            },
+            {
+              "severity": "warning",
+              "code": "camera_missing",
+              "message": "Camera make and model are both missing."
+            }
+          ]
+        },
+        {
+          "path": "DCIM/VID_018.INSV",
+          "bytes": 81,
+          "sha256": "f6463a9965dcd320c2b968d31442f57e6bb1d5b5df71eb537b28554cb7308201",
+          "extension": "insv",
+          "media_kind": "video",
+          "support": {
+            "status": "rejected",
+            "reason": "Proprietary Insta360 original requires vendor conversion or a tested downstream decoder."
+          },
+          "embedded_preview": "not_applicable",
+          "orientation": {
+            "value": null,
+            "label": "not recorded",
+            "status": "missing"
+          },
+          "projection": {
+            "kind": "unknown",
+            "evidence": []
+          },
+          "camera": {
+            "make": null,
+            "model": null,
+            "status": "not_applicable"
+          },
+          "gps": {
+            "present": false,
+            "redacted": false
+          },
+          "findings": [
+            {
+              "severity": "error",
+              "code": "unsupported_format",
+              "message": "Proprietary Insta360 original requires vendor conversion or a tested downstream decoder."
+            }
+          ]
+        }
+      ]
+    },
+    "transcript": "CAMERA INGEST PREFLIGHT  /  lightroom profile\nROOT  <temporary demo folder>/card\nFILES    4   READY    0   REVIEW    3   REJECT    1\n\n✓ REVIEW DCIM/FISHEYE_007.DNG                       .dng         47 bytes\n          preview_missing — No embedded JPEG preview found in the inspected RAW header.\n          camera_missing — Camera make and model are both missing.\n✓ REVIEW DCIM/RICOH_001.JPG                         .jpg        118 bytes\n          camera_missing — Camera make and model are both missing.\n✓ REVIEW DCIM/SONY_A73_042.ARW                      .arw         89 bytes\n          preview_missing — No embedded JPEG preview found in the inspected RAW header.\n          camera_missing — Camera make and model are both missing.\n× REJECT DCIM/VID_018.INSV                          .insv        81 bytes\n          unsupported_format — Proprietary Insta360 original requires vendor conversion or a tested downstream decoder.\n\nGPS   1 file(s); GPS presence is reported; exact coordinates are redacted.\nHASH  SHA-256 across every regular file; symlinks were not followed.\nDEMO   sample card and JSON report → <temporary demo folder>\n"
+  }
+}
