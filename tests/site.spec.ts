@@ -1,9 +1,31 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-test("home has core semantics, working demo, and no serious accessibility violations", async ({ page }) => {
+const slug = "camera-ingest-preflight";
+const licenseKey = `sb_license:${slug}`;
+const verdictKey = `sb_license_verdict:${slug}`;
+
+function verdictFor(token: string, valid: boolean) {
+  return {
+    valid,
+    reason: valid ? "ok" : "invalid",
+    checkedAt: Date.now(),
+    tokenFingerprint: createHash("sha256").update(token).digest("hex")
+  };
+}
+
+async function seedLicense(page: import("@playwright/test").Page, token: string, valid: boolean) {
+  const verdict = verdictFor(token, valid);
+  await page.addInitScript(({ licenseKey, verdictKey, token, verdict }) => {
+    localStorage.setItem(licenseKey, token);
+    localStorage.setItem(verdictKey, JSON.stringify(verdict));
+  }, { licenseKey, verdictKey, token, verdict });
+}
+
+test("@claim:sample-scan home has core semantics, working demo, and no serious accessibility violations", async ({ page }) => {
   const errors: string[] = [];
   page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
   await page.goto("/");
@@ -47,12 +69,16 @@ test("skip link transfers keyboard focus to main and the mobile wordmark is touc
   await skip.focus();
   await page.keyboard.press("Enter");
   await expect(page.locator("main")).toBeFocused();
-  const box = await page.getByRole("link", { name: "Camera Ingest Preflight home" }).boundingBox();
+  const wordmark = page.getByRole("link", { name: "CAMERA / PREFLIGHT home" });
+  await expect(wordmark).toHaveAccessibleName("CAMERA / PREFLIGHT home");
+  const box = await wordmark.boundingBox();
   expect(box?.width).toBeGreaterThanOrEqual(44);
   expect(box?.height).toBeGreaterThanOrEqual(44);
 });
 
-test("production worker precaches executable assets and offline reload stays interactive", async ({ page }) => {
+test("@claim:offline-reload production worker precaches executable assets and offline reload stays interactive", async ({ browser }) => {
+  const context = await browser.newContext();
+  const page = await context.newPage();
   const errors: string[] = [];
   page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
   page.on("pageerror", (error) => errors.push(error.message));
@@ -84,6 +110,7 @@ test("production worker precaches executable assets and offline reload stays int
   expect(errors).toEqual([]);
   await page.getByRole("button", { name: "Run sample scan" }).first().click();
   await expect(page.getByText("Vendor conversion needed")).toBeVisible();
+  await context.close();
 });
 
 test("Azure static deployment config preserves response policies and immutable assets", () => {
@@ -98,4 +125,97 @@ test("Azure static deployment config preserves response policies and immutable a
     { route: "/assets/*", headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
     { route: "/camera-blueprint.webp", headers: { "Cache-Control": "public, max-age=31536000, immutable" } }
   ]));
+});
+
+test("@regression:license-token-cache returned invalid token never inherits an old valid verdict", async ({ page }) => {
+  const oldToken = "OLD_VALID_TOKEN";
+  const replacement = "NEW_INVALID_TOKEN_456";
+  await seedLicense(page, oldToken, true);
+  let requests = 0;
+  await page.route("**/api/v1/products/camera-ingest-preflight/verify?license=*", async (route) => {
+    requests += 1;
+    await route.fulfill({ contentType: "application/json", body: JSON.stringify({ valid: false, reason: "invalid" }) });
+  });
+
+  await page.goto(`/?license=${replacement}`);
+  await expect(page.getByText("License no longer active. Check the token or buy a new license.")).toBeVisible();
+  expect(requests).toBe(1);
+  await expect(page.locator("#unlocked-view")).toBeHidden();
+  await expect.poll(() => page.evaluate((key) => localStorage.getItem(key), licenseKey)).toBe(replacement);
+  expect(new URL(page.url()).searchParams.has("license")).toBe(false);
+});
+
+test("@regression:license-token-cache returned valid token replaces an old invalid verdict", async ({ page }) => {
+  const oldToken = "OLD_INVALID_TOKEN";
+  const replacement = "NEW_VALID_TOKEN_456";
+  await seedLicense(page, oldToken, false);
+  let requests = 0;
+  await page.route("**/api/v1/products/camera-ingest-preflight/verify?license=*", async (route) => {
+    requests += 1;
+    await route.fulfill({ contentType: "application/json", body: JSON.stringify({ valid: true, reason: "ok" }) });
+  });
+
+  await page.goto(`/?license=${replacement}`);
+  await expect(page.getByText("License verified. Migration set unlocked.")).toBeVisible();
+  expect(requests).toBe(1);
+  await expect(page.locator("#unlocked-view")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Create a migration brief" })).toBeVisible();
+});
+
+test("@claim:migration-brief a verified license generates, saves, prints, and downloads a local migration brief", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.print = () => { document.documentElement.dataset.printedMigrationBrief = "true"; };
+  });
+  await page.route("**/api/v1/products/camera-ingest-preflight/verify?license=*", async (route) => {
+    await route.fulfill({ contentType: "application/json", body: JSON.stringify({ valid: true, reason: "ok" }) });
+  });
+  await page.goto("/?license=VALID_MIGRATION_TOKEN");
+  await expect(page.locator("#unlocked-view")).toBeVisible();
+
+  await page.getByRole("button", { name: "Load sample report" }).click();
+  const brief = page.locator("#brief-output");
+  await expect(brief.getByRole("heading", { name: "PhotoPrism migration brief" })).toBeVisible();
+  await expect(brief.getByText("Format-specific handoff notes")).toBeVisible();
+  await expect(brief).toContainText("Exact GPS coordinates are not included in this brief.");
+
+  await page.getByLabel("Layout name").fill("PhotoPrism card triage");
+  await page.getByRole("button", { name: "Save layout" }).click();
+  await expect(page.getByText("Saved PhotoPrism card triage on this browser.")).toBeVisible();
+  await expect(page.getByLabel("Saved layouts")).toContainText("PhotoPrism card triage — PhotoPrism");
+
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Download text brief" }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toBe("camera-ingest-migration-brief.txt");
+  expect(await download.createReadStream().then(async (stream) => {
+    const chunks: Buffer[] = [];
+    for await (const chunk of stream) chunks.push(Buffer.from(chunk));
+    return Buffer.concat(chunks).toString("utf8");
+  })).toContain("PhotoPrism migration brief");
+
+  await page.getByRole("button", { name: "Print brief" }).click();
+  await expect.poll(() => page.evaluate(() => document.documentElement.dataset.printedMigrationBrief)).toBe("true");
+});
+
+test("@regression:license-token-cache restore forces verification and offline state only trusts the matching token", async ({ page }) => {
+  await page.route("**/api/v1/products/camera-ingest-preflight/verify?license=*", async (route) => {
+    await route.fulfill({ contentType: "application/json", body: JSON.stringify({ valid: true, reason: "ok" }) });
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Have a license? Restore it" }).click();
+  await page.getByLabel("License token").fill("RESTORED_VALID_TOKEN");
+  await page.getByRole("button", { name: "Verify license" }).click();
+  await expect(page.locator("#unlocked-view")).toBeVisible();
+  await expect.poll(() => page.evaluate((key) => localStorage.getItem(key), licenseKey)).toBe("RESTORED_VALID_TOKEN");
+});
+
+test("@claim:local-demo-privacy sample demo keeps its records in the page", async ({ page }) => {
+  const requests: string[] = [];
+  page.on("request", (request) => requests.push(request.url()));
+  await page.goto("/");
+  await page.getByRole("button", { name: "Run sample scan" }).first().click();
+  await expect(page.getByText("Vendor conversion needed")).toBeVisible();
+  const origin = new URL(page.url()).origin;
+  expect(requests.filter((url) => new URL(url).origin !== origin)).toEqual([]);
+  await expect(page.locator('input[type="file"]')).toHaveCount(0);
 });

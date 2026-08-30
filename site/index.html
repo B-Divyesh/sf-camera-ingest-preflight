@@ -17,7 +17,7 @@
       <button class="text-button" id="retry-network" type="button">Retry</button>
     </div>
     <header class="site-header">
-      <a class="wordmark" href="/" aria-label="Camera Ingest Preflight home">
+      <a class="wordmark" href="/" aria-label="CAMERA / PREFLIGHT home">
         <span class="aperture" aria-hidden="true"></span>
         <span>CAMERA / PREFLIGHT</span>
       </a>
@@ -34,7 +34,7 @@
         <div class="hero-copy">
           <p class="eyebrow"><span>FIELD SHEET 01</span> / READ-ONLY INSPECTION</p>
           <h1 id="page-title">Know what will break <em>before</em> you import.</h1>
-          <p class="lede">Scan a camera card for unsupported originals, missing previews, 360° projection clues, orientation, duplicate bytes, camera names, and GPS risk—without changing a file.</p>
+          <p class="lede">Scan a camera card for unsupported originals, preview risks, 360° clues, orientation, duplicates, camera names, and GPS risk. It never changes a file.</p>
           <div class="actions">
             <a class="button primary" href="#install">Install the scanner</a>
             <button class="button secondary" type="button" data-run-demo>Run sample scan</button>
@@ -122,7 +122,7 @@
         <div class="section-heading">
           <p class="eyebrow">INSTALLATION / RUST 1.85+</p>
           <h2 id="install-title">One binary. One honest exit code.</h2>
-          <p>Exit 0 means import-ready, 1 means review the findings, and 2 means the folder could not be scanned. Symlinks are never followed.</p>
+          <p>Exit 0 means import-ready. Exit 1 means review findings. Exit 2 means the folder could not be scanned. Symlinks are never followed.</p>
         </div>
         <div class="terminal" aria-label="Command line installation example">
           <div class="terminal-bar"><span>LOCAL SHELL</span><button class="copy-button" type="button" data-copy="cargo install --git https://github.com/B-Divyesh/sf-camera-ingest-preflight">Copy install command</button></div>
@@ -144,7 +144,7 @@ GPS      42 file(s); exact coordinates redacted.</code></pre>
         <div class="migration-copy">
           <p class="eyebrow">OPTIONAL MIGRATION SET / ONE-TIME</p>
           <h2 id="migration-title">Turn findings into a migration brief.</h2>
-          <p>The scanner, every safety check, and JSON/CSV export stay free. A one-time <strong>$29</strong> unlock adds printable PhotoPrism and Lightroom triage briefs, saved report presets, and format-specific handoff notes.</p>
+          <p>The scanner, every safety check, and JSON/CSV export stay free. A one-time <strong>$29</strong> unlock adds printable PhotoPrism and Lightroom briefs, saved report layouts, and format-specific handoff notes.</p>
           <ul class="tick-list">
             <li>Prioritized convert / keep / quarantine queues</li>
             <li>Printable location-redacted technician brief</li>
@@ -168,7 +168,54 @@ GPS      42 file(s); exact coordinates redacted.</code></pre>
           <div id="unlocked-view" hidden>
             <p class="plate-label pass">PRESET DRAWER / UNLOCKED</p>
             <h3>Migration set is active.</h3>
-            <p>Preset layouts are stored locally on this browser. The free CLI remains unchanged.</p>
+            <p>Build a location-redacted brief from a local CLI report. The free CLI remains unchanged.</p>
+            <div class="migration-workspace" id="migration-workspace" aria-labelledby="workspace-title">
+              <h4 id="workspace-title">Create a migration brief</h4>
+              <p class="workspace-note">Paste a JSON report from this scanner. It stays in this browser and is never uploaded.</p>
+              <div class="workspace-actions">
+                <button class="button secondary compact" id="load-sample-report" type="button">Load sample report</button>
+                <span id="migration-status" role="status" aria-live="polite"></span>
+              </div>
+              <label for="migration-report">Camera Ingest Preflight JSON report</label>
+              <textarea id="migration-report" rows="8" spellcheck="false" aria-describedby="migration-status migration-report-help"></textarea>
+              <p class="field-help" id="migration-report-help">Use <code>camera-ingest-preflight scan CARD --json report.json</code>. Exact GPS coordinates are never copied into the brief.</p>
+              <div class="brief-settings">
+                <div>
+                  <label for="migration-target">Destination</label>
+                  <select id="migration-target">
+                    <option value="photoprism">PhotoPrism</option>
+                    <option value="lightroom">Lightroom</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="brief-order">Brief order</label>
+                  <select id="brief-order">
+                    <option value="priority">Priority first</option>
+                    <option value="format">Format first</option>
+                  </select>
+                </div>
+              </div>
+              <button class="button primary wide" id="generate-brief" type="button">Generate migration brief</button>
+              <div class="saved-layouts" aria-labelledby="saved-layouts-title">
+                <h5 id="saved-layouts-title">Saved report layouts</h5>
+                <div class="layout-save-row">
+                  <label class="sr-only" for="layout-name">Layout name</label>
+                  <input id="layout-name" type="text" maxlength="40" placeholder="Layout name" autocomplete="off" />
+                  <button class="button secondary compact" id="save-layout" type="button">Save layout</button>
+                </div>
+                <div class="layout-load-row">
+                  <label class="sr-only" for="saved-layout-list">Saved layouts</label>
+                  <select id="saved-layout-list"><option value="">No saved layouts</option></select>
+                  <button class="text-button" id="load-layout" type="button">Load</button>
+                  <button class="text-button" id="delete-layout" type="button">Delete</button>
+                </div>
+              </div>
+              <div class="brief-output" id="brief-output" hidden tabindex="-1" aria-live="polite"></div>
+              <div class="brief-export" id="brief-export" hidden>
+                <button class="button secondary compact" id="print-brief" type="button">Print brief</button>
+                <button class="button secondary compact" id="download-brief" type="button">Download text brief</button>
+              </div>
+            </div>
             <button class="button secondary" id="forget-license" type="button">Forget license on this device</button>
           </div>
           <p id="license-message" class="license-message" aria-live="polite"></p>

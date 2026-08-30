@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Bound cached web-license verdicts to a SHA-256 fingerprint of the exact
+  license token. Returned and restored tokens now always verify before access.
+- Added the paid local migration workspace: it generates printable and
+  downloadable PhotoPrism/Lightroom briefs, format-specific handoff notes, and
+  saved browser-only layouts from a pasted scanner JSON report.
+- Added `camera-ingest-preflight demo`, backed by a shipped sample card in a
+  temporary folder.
+- Aligned the home wordmark's accessible name with its visible label.
 - Prevented explicitly requested JSON and CSV report files inside a scanned
   folder from being re-ingested on later scans.
 

@@ -21,7 +21,8 @@
       <h2>Website data</h2>
       <p>The website demo uses fixed sample records and cannot select or upload your files. The site has no advertising or behavioral analytics. Basic infrastructure logs may record an IP address, user agent, requested path, and time for security and reliability, and are retained only as needed by the hosting operator.</p>
       <h2>License data</h2>
-      <p>If you buy or restore the migration set, your license token and most recent verification result are stored in your browser’s local storage. Verification sends that token to Sociobot’s billing API at most once per day. Checkout and refunds are handled by Sociobot/Dodo as merchant of record under their transaction policies.</p>
+      <p>If you buy or restore the migration set, your license token and a SHA-256 fingerprint of that exact token with its most recent verification result are stored in your browser’s local storage. A returned or pasted token is checked immediately. An unchanged token is checked with Sociobot’s billing API at most once per day.</p>
+      <p>A migration report you paste into the unlocked workspace is processed only in the page. It is not uploaded or saved. Saved brief layouts contain only a name, destination, and sort order in browser local storage. Checkout and refunds are handled by Sociobot/Dodo as merchant of record under their transaction policies.</p>
       <h2>Your controls</h2>
       <p>You can remove the token with “Forget license on this device” or by clearing site storage. You control every report file and can delete it normally. Avoid <code>--include-gps</code> for reports you plan to share.</p>
       <h2>Contact</h2>

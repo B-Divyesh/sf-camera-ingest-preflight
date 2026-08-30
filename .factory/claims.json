@@ -1,0 +1,30 @@
+[
+  {
+    "id": "sample-scan",
+    "claim": "The sample scan shows a four-file preflight report.",
+    "where": "Homepage demo",
+    "test": "npm run build:site && npx playwright test --grep @claim:sample-scan",
+    "sandbox": "Fresh browser context; click Run sample scan; observe the report finding."
+  },
+  {
+    "id": "offline-reload",
+    "claim": "Works offline after the first visit.",
+    "where": "Offline notice and README",
+    "test": "npm run build:site && npx playwright test --grep @claim:offline-reload",
+    "sandbox": "Dedicated browser context; wait for the worker, set offline, reload, and run the sample scan."
+  },
+  {
+    "id": "local-demo-privacy",
+    "claim": "The website demo uses fixed sample records and does not upload visitor files.",
+    "where": "Homepage demo and Privacy",
+    "test": "npm run build:site && npx playwright test --grep @claim:local-demo-privacy",
+    "sandbox": "Fresh browser context; run the sample, record requests, and assert no cross-origin requests or file input."
+  },
+  {
+    "id": "migration-brief",
+    "claim": "The migration set generates printable and downloadable PhotoPrism or Lightroom briefs with saved layouts.",
+    "where": "Migration set and README",
+    "test": "npm run build:site && npx playwright test --grep @claim:migration-brief",
+    "sandbox": "Fresh browser context; mock one valid license result, load the shipped sample report, save a layout, print, and download the brief."
+  }
+]

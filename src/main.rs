@@ -5,6 +5,7 @@ use clap::{Parser, Subcommand};
 use std::fs;
 use std::path::PathBuf;
 use std::process::ExitCode;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Parser)]
 #[command(
@@ -39,6 +40,12 @@ enum Command {
         /// Suppress the human report
         #[arg(long)]
         quiet: bool,
+    },
+    /// Run the bundled sample card in a temporary folder and write its JSON report there
+    Demo {
+        /// Downstream compatibility profile: generic, photoprism, or lightroom
+        #[arg(long, default_value = "photoprism")]
+        profile: Profile,
     },
 }
 
@@ -107,7 +114,62 @@ fn run() -> Result<bool, String> {
             }
             Ok(needs_review(&report))
         }
+        Command::Demo { profile } => run_demo(profile),
     }
+}
+
+fn run_demo(profile: Profile) -> Result<bool, String> {
+    let nonce = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_nanos();
+    let folder = std::env::temp_dir().join(format!(
+        "camera-ingest-preflight-demo-{}-{nonce}",
+        std::process::id()
+    ));
+    let card = folder.join("card");
+    fs::create_dir_all(card.join("DCIM"))
+        .map_err(|e| format!("cannot create demo folder '{}': {e}", card.display()))?;
+    for (name, bytes) in [
+        (
+            "RICOH_001.JPG",
+            include_bytes!("../examples/demo-card/DCIM/RICOH_001.JPG").as_slice(),
+        ),
+        (
+            "SONY_A73_042.ARW",
+            include_bytes!("../examples/demo-card/DCIM/SONY_A73_042.ARW").as_slice(),
+        ),
+        (
+            "VID_018.INSV",
+            include_bytes!("../examples/demo-card/DCIM/VID_018.INSV").as_slice(),
+        ),
+        (
+            "FISHEYE_007.DNG",
+            include_bytes!("../examples/demo-card/DCIM/FISHEYE_007.DNG").as_slice(),
+        ),
+    ] {
+        let path = card.join("DCIM").join(name);
+        fs::write(&path, bytes)
+            .map_err(|e| format!("cannot write demo input '{}': {e}", path.display()))?;
+    }
+
+    let report = scan_excluding_paths(
+        &ScanOptions {
+            root: card.clone(),
+            profile,
+            include_gps: false,
+        },
+        &[],
+    )?;
+    let output = folder.join("preflight-demo.json");
+    fs::write(
+        &output,
+        serde_json::to_string_pretty(&report).map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| format!("cannot write demo report '{}': {e}", output.display()))?;
+    print_human(&report);
+    println!("DEMO   sample card and JSON report → {}", folder.display());
+    Ok(needs_review(&report))
 }
 
 fn print_human(report: &Report) {

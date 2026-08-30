@@ -74,3 +74,23 @@ fn only_the_named_report_destination_is_excluded() {
     assert!(report.contains("photographer-notes.json"));
     assert!(!report.contains("preflight.json"));
 }
+
+#[test]
+fn bundled_demo_creates_a_real_temp_card_and_json_report() {
+    let output = Command::new(env!("CARGO_BIN_EXE_camera-ingest-preflight"))
+        .args(["demo", "--profile", "photoprism"])
+        .output()
+        .unwrap();
+    assert_eq!(output.status.code(), Some(1));
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("FILES    4"), "{stdout}");
+    let marker = "DEMO   sample card and JSON report → ";
+    let folder = stdout
+        .lines()
+        .find_map(|line| line.strip_prefix(marker))
+        .expect("demo folder announcement");
+    let report =
+        fs::read_to_string(std::path::Path::new(folder).join("preflight-demo.json")).unwrap();
+    assert!(report.contains("RICOH_001.JPG"));
+    assert!(report.contains("\"files_scanned\": 4"));
+}
