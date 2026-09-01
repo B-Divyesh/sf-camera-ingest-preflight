@@ -626,7 +626,16 @@ fn camera_info(make: Option<String>, model: Option<String>, kind: MediaKind) -> 
 }
 
 fn is_garbled(value: &str) -> bool {
-    value.contains('\u{fffd}') || value.chars().any(|c| c.is_control() && !c.is_whitespace())
+    let escaped_byte = value.as_bytes().windows(4).any(|window| {
+        window[0] == b'\\'
+            && window[1].eq_ignore_ascii_case(&b'x')
+            && window[2].is_ascii_hexdigit()
+            && window[3].is_ascii_hexdigit()
+    });
+    value.contains('\u{fffd}')
+        || value.contains("\\u{")
+        || escaped_byte
+        || value.chars().any(|c| c.is_control() && !c.is_whitespace())
 }
 
 fn read_exif(path: &Path) -> Option<Metadata> {
@@ -744,6 +753,14 @@ mod tests {
         assert_eq!(report.summary.duplicate_files, 1);
         assert!(report.files[0].gps.redacted);
         assert!(report.files[0].gps.latitude.is_none());
+    }
+
+    #[test]
+    fn detects_raw_and_exif_display_escaped_garbled_identity() {
+        assert!(is_garbled("Can\u{1}on"));
+        assert!(is_garbled(r"Can\x01on"));
+        assert!(is_garbled(r"Can\u{fffd}on"));
+        assert!(!is_garbled("Canon"));
     }
 
     #[test]

@@ -68,11 +68,13 @@ Exit codes are `0` when the scan is import-ready, `1` when issues need review, a
 The JSON schema is versioned with `schema_version`. Each file includes its relative path, byte size, SHA-256 digest, detected kind, downstream support status, preview status, orientation, 360 hint, camera make/model status, GPS presence, and structured findings. Exact latitude/longitude are omitted unless `--include-gps` is set.
 
 Supported profiles are `generic`, `photoprism`, and `lightroom`. The free
-generic profile, all checks, and JSON/CSV export remain fully usable. The
-one-time web migration set turns a pasted local JSON report into a printable or
+generic profile, all checks, and JSON/CSV export remain fully usable. Existing
+web migration licenses turn a pasted local JSON report into a printable or
 downloadable PhotoPrism or Lightroom brief, with format-specific handoff notes.
-It can save destination/order layouts in browser storage. It does not alter the
-open CLI or gate privacy/safety.
+They can save destination/order layouts in browser storage. The planned
+one-time price is $29, but new purchases are unavailable while checkout
+registration is completed. The migration set does not alter the open CLI or
+gate privacy/safety.
 
 ## Develop and verify
 

@@ -178,7 +178,7 @@ function showLicense(valid: boolean, message = ""): void {
 async function verifyLicense(token: string, force = false): Promise<void> {
   const cached = await cachedVerdict(token);
   if (!force && cached && Date.now() - cached.checkedAt < day) {
-    showLicense(cached.valid, cached.valid ? "License verified on this device." : "License no longer active. You can restore another token or buy again.");
+    showLicense(cached.valid, cached.valid ? "License verified on this device." : "License no longer active. Restore another token; new purchases are temporarily unavailable.");
     return;
   }
   if (!navigator.onLine) {
@@ -193,7 +193,7 @@ async function verifyLicense(token: string, force = false): Promise<void> {
     if (localStorage.getItem(licenseKey) !== token) return;
     const verdict: Verdict = { valid: result.valid, reason: result.reason, checkedAt: Date.now(), tokenFingerprint: await fingerprintToken(token) };
     localStorage.setItem(verdictKey, JSON.stringify(verdict));
-    showLicense(result.valid, result.valid ? "License verified. Migration set unlocked." : "License no longer active. Check the token or buy a new license.");
+    showLicense(result.valid, result.valid ? "License verified. Migration set unlocked." : "License no longer active. Check the token or restore another license.");
   } catch {
     if (localStorage.getItem(licenseKey) !== token) return;
     showLicense(Boolean(cached?.valid), "License check is temporarily unavailable. Try again; the free scanner is unaffected.");

@@ -28,6 +28,62 @@
     "sandbox": "Runs the bundled CLI demo and asserts GPS presence, the false inclusion flag, and no latitude or longitude fields."
   },
   {
+    "id": "format-decisions",
+    "claim": "Generic, PhotoPrism, and Lightroom profiles classify formats as accepted, version-sensitive, or rejected.",
+    "where": "homepage checks and README report contract",
+    "test": "npm run build:site && npx playwright test --grep @claim:format-decisions",
+    "sandbox": "Creates XMP, AVIF, and INSV inputs; runs all three real CLI profiles and asserts each support decision and rejection finding."
+  },
+  {
+    "id": "embedded-preview",
+    "claim": "The scanner detects embedded JPEG previews in RAW headers using a 24 MiB inspection limit.",
+    "where": "homepage RAW preview check",
+    "test": "npm run build:site && npx playwright test --grep @claim:embedded-preview",
+    "sandbox": "Creates RAW inputs with a JPEG inside, absent, and beyond the 24 MiB inspection boundary; asserts available and missing results."
+  },
+  {
+    "id": "projection-hints",
+    "claim": "The scanner reports GPano XMP, near-2:1 dimensions, and cautious filename projection hints.",
+    "where": "homepage projection check and README",
+    "test": "npm run build:site && npx playwright test --grep @claim:projection-hints",
+    "sandbox": "Creates a GPano sidecar, a valid 8000x4000 TIFF, and a PANO filename; asserts each distinct kind and evidence string."
+  },
+  {
+    "id": "orientation-validation",
+    "claim": "The scanner translates EXIF orientation values 1 through 8 and flags values outside that range.",
+    "where": "homepage orientation check and README",
+    "test": "npm run build:site && npx playwright test --grep @claim:orientation-validation",
+    "sandbox": "Generates nine valid TIFF fixtures; asserts every 1-8 label and the orientation_invalid finding for value 9."
+  },
+  {
+    "id": "duplicate-detection",
+    "claim": "The scanner compares complete SHA-256 file digests to report duplicate bytes regardless of filename.",
+    "where": "homepage duplicate check and README",
+    "test": "npm run build:site && npx playwright test --grep @claim:duplicate-detection",
+    "sandbox": "Creates two differently named equal files and one unequal file; asserts one duplicate, its digest and source path, and no false positive."
+  },
+  {
+    "id": "camera-metadata",
+    "claim": "The scanner distinguishes complete, missing, partial, and garbled camera make/model metadata.",
+    "where": "homepage camera identity check and README",
+    "test": "npm run build:site && npx playwright test --grep @claim:camera-metadata",
+    "sandbox": "Generates TIFFs with complete, absent, partial, and control-byte camera identity; asserts statuses and structured findings."
+  },
+  {
+    "id": "gps-inclusion",
+    "claim": "The --include-gps option emits parsed coordinates only after explicit opt-in.",
+    "where": "homepage location check, privacy policy, and README",
+    "test": "npm run build:site && npx playwright test --grep @claim:gps-inclusion",
+    "sandbox": "Generates a TIFF at 37°48′30″ N, 122°24′15″ W; proves default redaction and exact coordinates after --include-gps."
+  },
+  {
+    "id": "report-contract",
+    "claim": "JSON reports use schema 1.0; exit codes mean ready 0, findings 1, and scan error 2; only exact report destinations are excluded.",
+    "where": "homepage installation section and README report contract",
+    "test": "npm run build:site && npx playwright test --grep @claim:report-contract",
+    "sandbox": "Runs ready, findings, and missing-folder cases; asserts schema fields and proves the named output is excluded while another JSON file remains scanned."
+  },
+  {
     "id": "sha256-report",
     "claim": "Each scanned original receives a SHA-256 digest in the JSON report.",
     "where": "homepage checks and README report contract",
@@ -81,7 +137,28 @@
     "claim": "The migration set creates a printable and downloadable location-redacted PhotoPrism or Lightroom brief from a local report.",
     "where": "migration set and README",
     "test": "npm run build:site && npx playwright test --grep @claim:migration-brief",
-    "sandbox": "Mocks a valid license, loads the CLI-derived sample, saves a layout, downloads the text, and invokes print."
+    "sandbox": "Mocks a valid license, loads the CLI-derived sample, generates both destination briefs, downloads Lightroom text, and invokes print."
+  },
+  {
+    "id": "paid-layouts",
+    "claim": "Existing migration licenses can save, reload, apply, and delete destination and order layouts in browser storage.",
+    "where": "migration set, privacy policy, terms, and README",
+    "test": "npm run build:site && npx playwright test --grep @claim:paid-layouts",
+    "sandbox": "Mocks a valid license; saves a Lightroom format-order layout, reloads, applies it over changed controls, deletes it, and checks local storage."
+  },
+  {
+    "id": "license-revocation",
+    "claim": "A revoked license stops unlocking paid layouts after its next daily verification.",
+    "where": "migration set, terms, and README",
+    "test": "npm run build:site && npx playwright test --grep @claim:license-revocation",
+    "sandbox": "Seeds an expired cached valid verdict, returns a recorded revoked response, and asserts the paid workspace locks and stores the invalid verdict."
+  },
+  {
+    "id": "checkout-status",
+    "claim": "The site does not offer new purchases while checkout registration is incomplete; existing license restore remains available.",
+    "where": "migration set, terms, and README",
+    "test": "npm run build:site && npx playwright test --grep @claim:checkout-status",
+    "sandbox": "Opens the site and terms; asserts the unavailable status, no broken checkout link, and an operable existing-license restore control."
   },
   {
     "id": "pasted-report-privacy",

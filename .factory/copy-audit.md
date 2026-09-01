@@ -1,4 +1,4 @@
-# Copy audit — 2026-08-30
+# Copy audit — 2026-09-01
 
 Source checked: `site/index.html`. Navigation labels, code blocks, table
 headers, form labels, and status fragments are not sentences. All visitor
@@ -26,9 +26,15 @@ appears in the landing prose.
 | 5 | Exit 1 means review findings. |
 | 9 | Exit 2 means the folder could not be scanned. |
 | 4 | Symlinks are never followed. |
-| 11 | The scanner, every safety check, and JSON/CSV export stay free. |
-| 17 | A one-time $29 unlock adds printable PhotoPrism and Lightroom briefs, saved report layouts, and format-specific handoff notes. |
-| 15 | Sociobot/Dodo is the merchant of record; refunds are handled there and revoke the license. |
+| 10 | The scanner, every safety check, and JSON/CSV export stay free. |
+| 12 | Existing migration licenses add printable briefs, saved report layouts, and handoff notes. |
+| 6 | The planned one-time price is $29. |
+| 9 | New purchases are unavailable while checkout registration is completed. |
+| 6 | Sociobot/Dodo handles existing purchases and refunds. |
+| 5 | A refund revokes the license. |
+| 5 | New purchases are temporarily unavailable. |
+| 6 | Checkout registration is still being completed. |
+| 7 | Existing license holders can restore access below. |
 | 9 | Build a location-redacted brief from a local CLI report. |
 | 5 | The free CLI remains unchanged. |
 | 9 | It stays in this browser and is never uploaded. |
