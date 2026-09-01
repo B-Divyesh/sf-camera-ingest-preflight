@@ -78,9 +78,8 @@ cargo package
 - TypeScript, Rust formatting, and strict Clippy passed.
 - Production build produced `dist/site/`; initial JS is 14.2 KiB and CSS is
   17.8 KiB uncompressed, with no webfonts.
-- `cargo package --allow-dirty` verified 14 files, 57.9 KiB unpacked and 17.6
-  KiB compressed. The clean committed tree should use `cargo package` without
-  that development-only flag.
+- Clean `cargo package` verified 14 files, 57.8 KiB unpacked and 17.6 KiB
+  compressed.
 - The packaged crate installed with `--locked` into an isolated Cargo root.
   Its help rendered correctly and bundled demo returned expected exit 1 with
   4 files: 0 ready, 3 review, 1 reject.
@@ -104,20 +103,37 @@ cargo package
   100, SEO 100; FCP 1.0 s, LCP 1.5 s, TBT 0 ms, CLS 0. INP is not produced by
   this lab navigation.
 
-## Deploy and verify
+## Deployment and live verification
 
-Build after the final commit so the HTML build ID matches `git rev-parse
---short=12 HEAD`, then deploy only this product:
+Application commit `5452d4e8c8d073545c1a808bd74bae7e76da9fcc` was pushed to
+`origin/main`, built with matching build ID `5452d4e8c8d0`, and deployed only
+to `sf-camera-ingest-preflight` with:
 
 ```sh
-npm run build
 /opt/fleet/lib/deploy-static.sh camera-ingest-preflight dist/site
 ```
 
-Verify the public build ID, `/`, `/demo/`, legal pages, 404 response, security
-headers, immutable hashed assets, offline reload, privacy request log, desktop,
-390 px mobile, keyboard, Axe, and the complete Playwright suite against
-`https://camera-ingest-preflight.sociobot.in`.
+Deployment `3764d7ba-0d00-4949-bc7d-3c2e1b447bf8` succeeded. Live
+`index.html` was byte-identical to the committed build with SHA-256
+`c6808843613d487db88505798922f9411c29738a831af70a062b36e1d207eb5a`.
+
+- `/`, `/demo/`, `/privacy/`, `/terms/`, `/sw.js`, and
+  `/demo-fixtures.json` returned 200. An unknown route returned the designed
+  page with HTTP 404.
+- Live documents send CSP, HSTS, Permissions-Policy, `nosniff`, and strict
+  referrer policy. Hashed JavaScript sends one-year immutable caching; HTML
+  and `sw.js` revalidate after 30 seconds.
+- Live `verify-url.sh` passed in 847 ms with zero console errors and complete
+  baseline semantics.
+- All 35 Playwright tests passed against the production hostname, including
+  desktop, 390 px mobile, keyboard, Axe, privacy, offline reload, claim,
+  checkout-status, and touch-target regressions.
+- Live Lighthouse 13.4.1 mobile scored 100 Performance, 100 Accessibility,
+  100 Best Practices, and 100 SEO; FCP 0.9 s, LCP 1.2 s, TBT 0 ms, CLS 0.
+
+This handoff-only evidence commit changes no product source. It is rebuilt and
+redeployed after commit so the final public `<meta name="build-id">` matches
+the final `git rev-parse --short=12 HEAD`.
 
 ## Known gap and next step
 
