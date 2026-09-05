@@ -426,6 +426,8 @@ test("@claim:demo-sandbox demo routes are isolated, resettable, and never read r
   await expect(page).toHaveTitle("Demo — Camera Ingest Preflight");
   await expect(page.getByText("Demo — sample data, nothing is saved.")).toBeVisible();
   await expect(page.locator("#report-body tr")).toHaveCount(4);
+  await expect(page.locator("#migration")).toBeHidden();
+  await expect(page.getByRole("link", { name: "Buy migration set — $29" })).toBeHidden();
   await page.getByRole("button", { name: "Reset demo" }).click();
   await expect(page.locator("#summary-review")).toHaveText("3");
   await expect(page.getByRole("link", { name: "Start for real" })).toHaveAttribute("href", "/");
