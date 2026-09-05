@@ -83,7 +83,7 @@ npm test
 npm run build
 ```
 
-`npm test` runs Rust unit/integration tests plus site tests. `npm run build` compiles the release CLI and Vite site; the deployable static site lands in `dist/site/`. Run the site locally with `npm run dev`.
+`npm test` runs Rust unit/integration tests plus site tests. `npm run build` compiles the optimized CLI and Vite site; the deployable static site lands in `dist/site/`. Run the site locally with `npm run dev`.
 
 Every command in `.factory/claims.json` also works from a clean checkout with
 only the documented Rust, Node, and npm prerequisites. Its claim runner runs

@@ -1,3 +1,101 @@
+# Camera Ingest Preflight — repair 8 handoff
+
+## Status: PASS
+
+Implementation `cda621b15d037f896501de60f136eec7ebf3cca3` repairs the review-1
+release-binary finding. The final HTTPS runtime serves build ID `cda621b15d03`
+at <https://camera-ingest-preflight.sociobot.in/>. Later handoff and
+documentation commits do not change that deployed product artifact.
+
+The supported public install path is the documented source build. The landing
+link now says **View source code** and goes to the source repository; it no
+longer offers release binaries. The README no longer claims that binaries are
+published. GitHub still has no releases or tags, but that absence is no longer
+a visitor promise.
+
+## What changed
+
+- Replaced the misleading **Source and release binaries** link with **View
+  source code** while retaining the working `cargo install --git` path.
+- Removed the README binary-publishing statement and clarified that `npm run
+  build` produces an optimized local CLI.
+- Strengthened the `open-source` claim test to prove the MIT license, documented
+  source install, and visible source-repository link.
+- Added a public-install regression: users are sent to the source repository,
+  not a `/releases` URL, and neither public install surface promises binaries.
+- Updated the claim sandbox description and changelog.
+
+## Verification
+
+- A fresh `git clone --no-local` of `cda621b` began without `node_modules`.
+  All 25 exact `.factory/claims.json` commands passed in manifest order. The
+  first command performed its documented locked `npm ci` bootstrap; the final
+  Playwright record is `passed` with no failed tests.
+- Local gates passed: `npm test` (12 Rust tests and 36 Chromium tests),
+  `npm run typecheck`, `cargo fmt --all -- --check`, `cargo clippy
+  --all-targets --all-features -- -D warnings`, and `npm run build`.
+- `cargo package --locked` passed (14 files; 58.0 KiB unpacked, 17.6 KiB
+  compressed). A clean extracted consumer installed it with `cargo install
+  --locked`; `--help` worked and `demo --profile photoprism` produced the real
+  four-file report: 0 ready, 3 review, 1 reject, with expected exit code 1.
+- The final static artifact was uploaded to the existing product app only. No
+  resource, DNS record, deployment setting, billing setting, or secret changed.
+  Both app host and product HTTPS origin returned build ID `cda621b15d03`.
+- Full live Playwright against the production hostname passed 36 of 36 tests.
+  This covers fresh desktop/390 px phone first screens, keyboard sample entry,
+  the isolated CLI-derived demo, persistent label, reset, no real-storage
+  changes, no sample upload, offline reload, reduced motion, legal routes,
+  designed 404, and the repaired install behavior.
+- `/opt/fleet/lib/verify-url.sh` passed against final HTTPS in 645 ms: title,
+  `lang=en`, one h1, main, image alternatives, named buttons, and no page or
+  console errors. The live suite uses Axe 4.13 with no serious or critical
+  violations.
+- `.factory/catalog-description.txt` remains the verb-first 98-character line
+  and is copied to `/work/.evidence/catalog-description.txt`.
+
+## Earlier findings
+
+| Earlier report | Current disposition |
+| --- | --- |
+| Verification 1: policy, cache, offline, typecheck, skip focus, touch target | Fixed; live suite and URL check pass. |
+| Verification 2: exports scanned as inputs | Fixed; exact-destination Rust regressions pass. |
+| Verification 3: token cache and wordmark name | Fixed; token-bound verification and Axe pass. |
+| Verification 4: candidate, audience, demo, routes, metadata | Fixed; final build identity, first screen, demo, and routes pass. |
+| Verification 5: claims and demo controls | Fixed; all 25 claims and mobile controls pass. |
+| Verification 6: clean claims and checkout availability | Bootstrap fixed; checkout registration remains external. |
+| Review 1: unavailable, untested release binaries | Fixed by removing the offer and adding public-install regression coverage. |
+
+## Run and package
+
+Use stable Rust, Node 22+, and npm:
+
+```sh
+npm ci
+npm test
+npm run typecheck
+cargo fmt --all -- --check
+cargo clippy --all-targets --all-features -- -D warnings
+npm run build
+cargo package --locked
+```
+
+One claim command from a clean checkout is, for example,
+`npm run claim -- --grep @claim:open-source`. The runner installs locked site
+dependencies only when absent. Package publication remains factory-owned;
+`cargo package --locked` makes the ready package.
+
+## Known external dependency
+
+The free local scanner, JSON/CSV export, and sample demo are fully usable. The
+$29 one-time migration set and existing-license restoration remain in place.
+The separate Sociobot billing registration is pending: its hosted checkout
+deliberately returns the expected HTTP 404 until the billing operator enables
+the prepared offer. No payment, billing, or provider setting changed here. Once
+enabled, verify a purchased return token against the existing endpoint; a
+checkout redirect alone is not entitlement proof.
+
+---
+
 # Camera Ingest Preflight — review 1 handoff
 
 ## Review 1 status: FAIL
