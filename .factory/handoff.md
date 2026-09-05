@@ -1,3 +1,27 @@
+# Camera Ingest Preflight — review 1 handoff
+
+## Review 1 status: FAIL
+
+Review `camera-ingest-preflight-review-1` examined implementation
+`1cced20b57a33415cd5ae1e60b5679d5875daeea` and repository documentation
+`bb72d7d0818873f875a3c24247ba5fee57a483ea`. The current live documentation
+build ID is `bf5a40e9239c`.
+
+All 25 declared claims, clean checks, installed-CLI checks, live demo paths,
+accessibility checks, privacy behavior, routes, designed 404, and offline
+reload passed. The review is nevertheless **FAIL** with one P2 finding and one
+untested public claim: the landing page and README promise release binaries,
+but the linked GitHub repository has no tags or releases. The claim manifest
+tests source availability only, not release availability.
+
+Do not call this product PASS until release assets plus a claim test exist, or
+the release-binary wording is removed. The external Sociobot checkout still
+returns the expected billing-registration 404; that is not a product finding.
+
+See `.factory/review-1.md` for full evidence.
+
+---
+
 # Camera Ingest Preflight — verification 7 handoff
 
 ## Release status: PASS
