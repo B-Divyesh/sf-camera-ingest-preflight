@@ -1,17 +1,16 @@
-# Camera Ingest Preflight — repair 7 handoff
+# Camera Ingest Preflight — verification 7 handoff
 
-## Release status: billing registration pending
+## Release status: PASS
 
 Implementation `1cced20b57a33415cd5ae1e60b5679d5875daeea` is committed,
-pushed, deployed, and verified at
+pushed, deployed, and independently verified at
 <https://camera-ingest-preflight.sociobot.in/>.
 
-The product implementation, free CLI, demo, paid deliverables, license handling,
-and static deployment pass. New purchases remain release-blocked because the
-separate Sociobot billing engine still returns HTTP 404 for this product. The
-required public registration metadata is in
-`/work/.evidence/billing-offer.json`; no credentials or shared services were
-read or changed.
+Documentation is at `bf5a40e9239c1d86116099a5ba64ff3d397f2eb1`. The product
+implementation, free CLI, demo, paid deliverables, license handling, and static
+deployment pass. The separately operated billing registration still deliberately
+returns HTTP 404 until its operator enables the offer; this is an external
+dependency, not a defect in this product verification.
 
 ## Changes
 
@@ -80,6 +79,35 @@ This handoff is a later documentation-only change; the live build ID is
   The main JS asset is 13.35 KiB and the primary CSS asset is 17.53 KiB
   uncompressed; no webfonts.
 
+### Independent verification 7
+
+- Verdict: **PASS** — zero product findings and zero untested public claims.
+- A new clone at implementation `1cced20` began without `node_modules`. Its
+  first exact claim command installed the locked dependencies through the
+  documented runner; all 25 manifest commands then passed, one tagged test each.
+- `npm test` passed: 12 Rust tests and 35 Chromium tests. `npm run typecheck`,
+  `cargo fmt --all -- --check`, `cargo clippy --all-targets --all-features --
+  -D warnings`, `npm run build`, and `cargo package --locked` also passed.
+- A clean consumer installed the release binary. `--help` was useful and
+  `demo --profile photoprism` created its temporary four-file report and exited
+  1 with 0 ready, 3 review, and 1 reject.
+- Fresh desktop and 390 px phone browsers showed the job, audience, and
+  **Try it with sample data** before scrolling. One keyboard activation entered
+  `/demo/`; the persistent label, 4/0/3/1 report, reset, same-origin-only demo
+  requests, and preservation of seeded real license/layout storage all passed.
+- The factory URL check passed in 780 ms. Axe found zero serious/critical issues
+  on desktop and phone demo screens. Offline reload rendered the four sample
+  rows. Home, demo, privacy, terms, and the designed HTTP 404 had correct
+  route-specific titles and one h1.
+- The live functional HTML and all runtime assets match implementation
+  `1cced20` after normalizing the later documentation build identifier. The
+  live identifier is `bf5a40e9239c`; its service-worker cache name changed with
+  that documentation build, but its precache list matches.
+- Invalid license input received focused, announced guidance and a corrected
+  submission recovered to the documented inactive-license message. The product
+  verification endpoint allowed 30 requests and returned 429 with `Retry-After`
+  on request 31.
+
 ## Earlier findings
 
 - Verification 1: offline shell, headers/cache, TypeScript check, skip focus,
@@ -95,16 +123,17 @@ This handoff is a later documentation-only change; the live build ID is
 - Verification 6: claim commands now bootstrap from the documented clean
   checkout. The checkout-registration dependency remains external and open.
 
-## Known gap and next step
+## External billing dependency and next step
 
-At the end of this repair, a fresh request to
+At the end of verification 7, a fresh request to
 `https://api.sociobot.in/api/v1/products/camera-ingest-preflight/checkout`
 still returns HTTP 404 with the billing engine's “enabled factory product”
-error. The controller's billing-registration operator must register and enable
-the offer described in `/work/.evidence/billing-offer.json`. After that,
-confirm the hosted checkout opens and returns a real license to the exact
-product origin; then verify that token against the existing validation path.
-A redirect alone is not entitlement proof.
+error. The assignment classifies that deliberate response as expected while the
+separate billing operator registers and enables the offer described in
+`/work/.evidence/billing-offer.json`. After registration, confirm the hosted
+checkout opens and returns a real license to the exact product origin; then
+verify that token against the existing validation path. A redirect alone is not
+entitlement proof.
 
 No product backend, database, tenant state, or AI integration applies to this
 static site and local CLI.
