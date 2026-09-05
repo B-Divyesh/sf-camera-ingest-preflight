@@ -179,7 +179,7 @@ test("@regression:claims-contract every registered claim has one exact tagged te
   expect(manifest.map((claim) => claim.id)).toEqual(expect.arrayContaining([
     "format-decisions", "embedded-preview", "projection-hints", "orientation-validation",
     "duplicate-detection", "camera-metadata", "gps-inclusion", "report-contract",
-    "paid-layouts", "license-revocation", "checkout-status"
+    "paid-layouts", "license-revocation", "checkout-start"
   ]));
 });
 
@@ -504,13 +504,25 @@ test("@regression:demo-banner-touch-targets both demo actions are at least 44px 
   }
 });
 
-test("@claim:checkout-status the site does not offer the known-broken checkout as a purchase action", async ({ page }) => {
+test("@claim:checkout-start the $29 action opens the exact hosted checkout and restore remains available", async ({ page }) => {
+  const checkout = "https://api.sociobot.in/api/v1/products/camera-ingest-preflight/checkout";
+  const checkoutRequests: string[] = [];
+  await page.route(checkout, async (route) => {
+    checkoutRequests.push(route.request().url());
+    await route.fulfill({
+      status: 200,
+      contentType: "text/html",
+      body: "<!doctype html><html lang=\"en\"><title>Sociobot checkout</title><h1>Hosted checkout</h1></html>"
+    });
+  });
   await page.goto("/");
-  await expect(page.getByText("New purchases are temporarily unavailable.", { exact: true })).toBeVisible();
-  await expect(page.locator('a[href*="/products/camera-ingest-preflight/checkout"]')).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Have a license? Restore it" })).toBeVisible();
+  await page.getByRole("link", { name: "Buy migration set — $29" }).click();
+  await expect(page).toHaveURL(checkout);
+  await expect(page.getByRole("heading", { name: "Hosted checkout" })).toBeVisible();
+  expect(checkoutRequests).toEqual([checkout]);
   await page.goto("/terms/");
-  await expect(page.locator("main")).toContainText("New purchases are unavailable while checkout registration is completed.");
+  await expect(page.locator("main")).toContainText("The migration set costs $29 as a one-time purchase.");
 });
 
 test("@claim:offline-reload production worker precaches the demo fixture and offline reload stays interactive", async ({ browser }) => {

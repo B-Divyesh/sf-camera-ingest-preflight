@@ -68,13 +68,12 @@ Exit codes are `0` when the scan is import-ready, `1` when issues need review, a
 The JSON schema is versioned with `schema_version`. Each file includes its relative path, byte size, SHA-256 digest, detected kind, downstream support status, preview status, orientation, 360 hint, camera make/model status, GPS presence, and structured findings. Exact latitude/longitude are omitted unless `--include-gps` is set.
 
 Supported profiles are `generic`, `photoprism`, and `lightroom`. The free
-generic profile, all checks, and JSON/CSV export remain fully usable. Existing
-web migration licenses turn a pasted local JSON report into a printable or
+generic profile, all checks, and JSON/CSV export remain fully usable. The $29
+one-time migration set turns a pasted local JSON report into a printable or
 downloadable PhotoPrism or Lightroom brief, with format-specific handoff notes.
-They can save destination/order layouts in browser storage. The planned
-one-time price is $29, but new purchases are unavailable while checkout
-registration is completed. The migration set does not alter the open CLI or
-gate privacy/safety.
+It can save destination/order layouts in browser storage. Purchase it through
+the hosted Sociobot checkout on the product site. The migration set does not
+alter the open CLI or gate privacy/safety.
 
 ## Develop and verify
 
@@ -87,6 +86,10 @@ npm run build
 ```
 
 `npm test` runs Rust unit/integration tests plus site tests. `npm run build` compiles the release CLI and Vite site; the deployable static site lands in `dist/site/`. Run the site locally with `npm run dev`.
+
+Every command in `.factory/claims.json` also works from a clean checkout with
+only the documented Rust, Node, and npm prerequisites. Its claim runner runs
+`npm ci` automatically when the locked site dependencies are absent.
 
 To create the ready-to-publish crate without publishing it, run `cargo package`.
 The factory owns registry credentials and deployment.

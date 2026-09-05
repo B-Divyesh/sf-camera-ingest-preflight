@@ -11,6 +11,7 @@
     "build": "cargo build --release && npm run build:site",
     "test:site": "npm run build:site && playwright test",
     "test": "cargo test && npm run test:site",
+    "claim": "node scripts/run-claim.mjs",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

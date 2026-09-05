@@ -1,0 +1,1 @@
+Scan mixed-camera cards for format, preview, metadata, duplicate, and GPS risks before DAM import.

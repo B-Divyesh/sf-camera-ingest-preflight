@@ -51,45 +51,29 @@
     <main id="main" tabindex="-1">
       <section class="hero" aria-labelledby="page-title">
         <div class="hero-copy">
-          <p class="eyebrow"><span>FIELD SHEET 01</span> / READ-ONLY INSPECTION</p>
+          <p class="eyebrow">READ-ONLY CAMERA CARD CHECK</p>
           <h1 id="page-title">Scan cards before DAM import.</h1>
           <p class="lede">For 360° and mixed-camera photographers who need import risks before a DAM sees the card.</p>
           <div class="actions">
             <button class="button primary" type="button" data-run-demo>Try it with sample data</button>
             <a class="button secondary" href="#install">Install the scanner</a>
           </div>
+          <p class="action-note">The four-file sample report opens below.</p>
           <ul class="trust-line" aria-label="Product guarantees">
-            <li>Local</li><li>Read-only</li><li>GPS-redacted</li><li>Open source</li>
+            <li>GPS-redacted by default</li><li>Demo works offline</li><li>Free scanner · $29 migration set</li>
           </ul>
         </div>
         <figure class="hero-figure">
           <img src="/camera-blueprint.webp" alt="Cyanotype technical drawing of a camera, memory card, fisheye lens, panorama and orientation compass linked by inspection marks" width="1536" height="1024" fetchpriority="high" />
-          <figcaption>PLATE A — mixed-camera ingest assembly</figcaption>
+          <figcaption>Mixed-camera ingest diagram</figcaption>
         </figure>
-      </section>
-
-      <section class="checks section-rule" id="checks" aria-labelledby="checks-title">
-        <div class="section-heading">
-          <p class="eyebrow">INSPECTION GRID / 07 CHECKS</p>
-          <h2 id="checks-title">A contact sheet for failure modes.</h2>
-          <p>Every regular file receives a SHA-256 fingerprint and a conservative, explainable verdict for your selected downstream profile.</p>
-        </div>
-        <ol class="check-grid">
-          <li><span>01</span><strong>Format gate</strong><p>Accepted, version-sensitive, or rejected for Generic, PhotoPrism, and Lightroom profiles.</p></li>
-          <li><span>02</span><strong>RAW preview</strong><p>Finds a bounded embedded JPEG so the library has something fast and faithful to display.</p></li>
-          <li><span>03</span><strong>360° projection</strong><p>Reads GPano XMP, near-2:1 dimensions, and cautious filename clues without pretending to stitch.</p></li>
-          <li><span>04</span><strong>Orientation</strong><p>Translates EXIF values 1–8 and flags invalid rotation or mirror values.</p></li>
-          <li><span>05</span><strong>Duplicate bytes</strong><p>Hashes the whole file, not a filename, to surface card copies and burst-folder repeats.</p></li>
-          <li><span>06</span><strong>Camera identity</strong><p>Calls out absent, partial, or garbled make/model metadata before indexing.</p></li>
-          <li><span>07</span><strong>Location privacy</strong><p>Reports GPS presence while redacting coordinates unless you explicitly include them.</p></li>
-        </ol>
       </section>
 
       <section class="demo section-rule" id="demo" aria-labelledby="demo-title">
         <div class="demo-toolbar">
           <div>
-            <p class="eyebrow">RECORDED FIELD RUN / SAMPLE CARD</p>
-            <h2 id="demo-title">See the report before you install.</h2>
+            <p class="eyebrow">BUNDLED FOUR-FILE SAMPLE</p>
+            <h2 id="demo-title">Review a sample report before installing.</h2>
           </div>
           <div class="demo-controls">
             <label for="profile">Downstream profile</label>
@@ -142,10 +126,39 @@
         </div>
       </section>
 
+      <section class="how section-rule" aria-labelledby="how-title">
+        <div class="section-heading">
+          <p class="eyebrow">THREE STEPS</p>
+          <h2 id="how-title">How the scanner works.</h2>
+        </div>
+        <ol class="check-grid how-grid">
+          <li><span>01</span><strong>Install the CLI</strong><p>Build the single Rust binary on the computer that reads your card.</p></li>
+          <li><span>02</span><strong>Scan the card</strong><p>Name the folder and choose the DAM profile you plan to use.</p></li>
+          <li><span>03</span><strong>Review the report</strong><p>Check the summary or export JSON and CSV before starting the import.</p></li>
+        </ol>
+      </section>
+
+      <section class="checks section-rule" id="checks" aria-labelledby="checks-title">
+        <div class="section-heading">
+          <p class="eyebrow">SEVEN PREFLIGHT CHECKS</p>
+          <h2 id="checks-title">Checks run on every file.</h2>
+          <p>Every regular file receives a SHA-256 fingerprint and a conservative, explainable verdict for your selected downstream profile.</p>
+        </div>
+        <ol class="check-grid">
+          <li><span>01</span><strong>Format gate</strong><p>Accepted, version-sensitive, or rejected for Generic, PhotoPrism, and Lightroom profiles.</p></li>
+          <li><span>02</span><strong>RAW preview</strong><p>Finds a bounded embedded JPEG so the library has something fast and faithful to display.</p></li>
+          <li><span>03</span><strong>360° projection</strong><p>Reads GPano XMP, near-2:1 dimensions, and cautious filename clues without pretending to stitch.</p></li>
+          <li><span>04</span><strong>Orientation</strong><p>Translates EXIF values 1–8 and flags invalid rotation or mirror values.</p></li>
+          <li><span>05</span><strong>Duplicate bytes</strong><p>Hashes the whole file, not a filename, to surface card copies and burst-folder repeats.</p></li>
+          <li><span>06</span><strong>Camera identity</strong><p>Calls out absent, partial, or garbled make/model metadata before indexing.</p></li>
+          <li><span>07</span><strong>Location privacy</strong><p>Reports GPS presence while redacting coordinates unless you explicitly include them.</p></li>
+        </ol>
+      </section>
+
       <section class="install section-rule" id="install" aria-labelledby="install-title">
         <div class="section-heading">
-          <p class="eyebrow">INSTALLATION / RUST 1.85+</p>
-          <h2 id="install-title">One binary. One honest exit code.</h2>
+          <p class="eyebrow">INSTALL WITH RUST 1.85 OR NEWER</p>
+          <h2 id="install-title">Install the command-line scanner.</h2>
           <p>Exit 0 means import-ready. Exit 1 means review findings. Exit 2 means the folder could not be scanned. Symlinks are never followed.</p>
         </div>
         <div class="terminal" aria-label="Command line installation example">
@@ -164,23 +177,33 @@ GPS      42 file(s); exact coordinates redacted.</code></pre>
         </div>
       </section>
 
+      <section class="boundary section-rule" aria-labelledby="boundary-title">
+        <p class="eyebrow">PRODUCT LIMITS</p>
+        <h2 id="boundary-title">What the scanner does not do.</h2>
+        <div class="boundary-grid">
+          <p><strong>No stitching.</strong> Projection clues tell you which workflow to choose; originals remain untouched.</p>
+          <p><strong>No proprietary codecs.</strong> Insta360 originals are flagged instead of decoded without a supported codec.</p>
+          <p><strong>No library changes.</strong> This happens before import. Nothing is indexed, renamed, moved, or changed.</p>
+        </div>
+      </section>
+
       <section class="migration section-rule" id="migration" aria-labelledby="migration-title">
         <div class="migration-copy">
-          <p class="eyebrow">OPTIONAL MIGRATION SET / ONE-TIME</p>
-          <h2 id="migration-title">Turn findings into a migration brief.</h2>
-          <p>The scanner, every safety check, and JSON/CSV export stay free. Existing migration licenses add printable briefs, saved report layouts, and handoff notes.</p>
+          <p class="eyebrow">$29 MIGRATION SET / ONE-TIME PURCHASE</p>
+          <h2 id="migration-title">Create a migration brief.</h2>
+          <p>The scanner, every safety check, and JSON/CSV export stay free. The migration set adds printable briefs, saved report layouts, and handoff notes.</p>
           <ul class="tick-list">
             <li>Prioritized convert / keep / quarantine queues</li>
             <li>Printable location-redacted technician brief</li>
             <li>Saved migration report layouts on this device</li>
           </ul>
-          <p class="merchant-note">The planned one-time price is $29. New purchases are unavailable while checkout registration is completed.</p>
+          <p class="merchant-note">The migration set costs $29 as a one-time purchase.</p>
           <p class="merchant-note">Sociobot/Dodo handles existing purchases and refunds. A refund revokes the license.</p>
         </div>
         <div class="license-panel">
           <div id="locked-view">
-            <p class="plate-label">PRESET DRAWER / LOCKED</p>
-            <p class="purchase-unavailable" role="status"><strong>New purchases are temporarily unavailable.</strong><br />Checkout registration is still being completed. Existing license holders can restore access below.</p>
+            <p class="plate-label">MIGRATION SET / LICENSE REQUIRED</p>
+            <a class="button primary wide" href="https://api.sociobot.in/api/v1/products/camera-ingest-preflight/checkout">Buy migration set — $29</a>
             <button class="text-button restore-toggle" type="button" aria-expanded="false" aria-controls="restore-form">Have a license? Restore it</button>
             <form id="restore-form" hidden novalidate>
               <label for="license-token">License token</label>
@@ -191,7 +214,7 @@ GPS      42 file(s); exact coordinates redacted.</code></pre>
             </form>
           </div>
           <div id="unlocked-view" hidden>
-            <p class="plate-label pass">PRESET DRAWER / UNLOCKED</p>
+            <p class="plate-label pass">MIGRATION SET / LICENSE VERIFIED</p>
             <h3>Migration set is active.</h3>
             <p>Build a location-redacted brief from a local CLI report. The free CLI remains unchanged.</p>
             <div class="migration-workspace" id="migration-workspace" aria-labelledby="workspace-title">
@@ -247,15 +270,6 @@ GPS      42 file(s); exact coordinates redacted.</code></pre>
         </div>
       </section>
 
-      <section class="boundary section-rule" aria-labelledby="boundary-title">
-        <p class="eyebrow">BOUNDARY CONDITIONS</p>
-        <h2 id="boundary-title">It inspects. It does not invent.</h2>
-        <div class="boundary-grid">
-          <p><strong>No stitching.</strong> Projection clues tell you which workflow to choose; originals remain untouched.</p>
-          <p><strong>No mystery codecs.</strong> Proprietary Insta360 originals are flagged honestly instead of decoded badly.</p>
-          <p><strong>No library mutation.</strong> This happens before import. Nothing is indexed, renamed, moved, or “fixed.”</p>
-        </div>
-      </section>
     </main>
 
     <footer>

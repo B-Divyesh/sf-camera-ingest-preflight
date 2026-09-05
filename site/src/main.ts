@@ -178,7 +178,7 @@ function showLicense(valid: boolean, message = ""): void {
 async function verifyLicense(token: string, force = false): Promise<void> {
   const cached = await cachedVerdict(token);
   if (!force && cached && Date.now() - cached.checkedAt < day) {
-    showLicense(cached.valid, cached.valid ? "License verified on this device." : "License no longer active. Restore another token; new purchases are temporarily unavailable.");
+    showLicense(cached.valid, cached.valid ? "License verified on this device." : "License no longer active. Check the token or buy another license.");
     return;
   }
   if (!navigator.onLine) {
