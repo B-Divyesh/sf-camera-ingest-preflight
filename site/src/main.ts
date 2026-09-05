@@ -127,7 +127,13 @@ async function runDemo(): Promise<void> {
   else window.setTimeout(() => void reveal(), 650);
 }
 
-document.querySelectorAll<HTMLButtonElement>("[data-run-demo]").forEach((button) => button.addEventListener("click", () => void runDemo()));
+document.querySelectorAll<HTMLButtonElement>("[data-run-demo]").forEach((button) => button.addEventListener("click", () => {
+  if (!demoMode) {
+    window.location.assign("/demo/");
+    return;
+  }
+  void runDemo();
+}));
 
 document.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((button) => {
   button.addEventListener("click", async () => {

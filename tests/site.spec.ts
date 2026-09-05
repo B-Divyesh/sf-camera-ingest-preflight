@@ -721,7 +721,11 @@ test("@claim:local-demo-privacy the normal sample demo uses only local fixed rec
   page.on("request", (request) => requests.push(request.url()));
   await page.goto("/");
   await page.getByRole("button", { name: "Try it with sample data" }).first().click();
+  await expect(page).toHaveURL(/\/demo\/$/);
+  await expect(page.getByText("Demo — sample data, nothing is saved.")).toBeVisible();
   await expect(page.locator("#report-body").getByText("Proprietary Insta360 original requires vendor conversion or a tested downstream decoder.")).toBeVisible();
+  await page.getByRole("button", { name: "Reset demo" }).click();
+  await expect(page.locator("#summary-review")).toHaveText("3");
   const origin = new URL(page.url()).origin;
   expect(requests.filter((url) => new URL(url).origin !== origin)).toEqual([]);
   await expect(page.locator('input[type="file"]')).toHaveCount(0);

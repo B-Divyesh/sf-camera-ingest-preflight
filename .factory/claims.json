@@ -109,7 +109,7 @@
     "claim": "The website sample does not upload visitor files.",
     "where": "homepage demo and privacy policy",
     "test": "npm run claim -- --grep @claim:local-demo-privacy",
-    "sandbox": "Fresh context runs the homepage sample while recording requests; asserts same-origin only and no file input."
+    "sandbox": "Fresh context clicks the homepage sample, enters the labeled demo, resets it, records same-origin-only requests, and confirms there is no file input."
   },
   {
     "id": "offline-reload",
