@@ -733,8 +733,18 @@ test("@claim:local-demo-privacy the normal sample demo uses only local fixed rec
   await expect(page.locator('input[type="file"]')).toHaveCount(0);
 });
 
-test("@claim:open-source MIT license and source link ship with the scanner", async ({ page }) => {
+test("@claim:open-source MIT source and a usable source-install path are available", async ({ page }) => {
   expect(readFileSync(resolve(root, "LICENSE"), "utf8")).toContain("Permission is hereby granted, free of charge");
+  expect(readFileSync(resolve(root, "README.md"), "utf8")).toContain("cargo install --path .");
   await page.goto("/");
-  await expect(page.getByRole("link", { name: "Source and release binaries" })).toHaveAttribute("href", /github\.com\/B-Divyesh\/sf-camera-ingest-preflight$/);
+  await expect(page.getByRole("link", { name: "View source code" })).toHaveAttribute("href", "https://github.com/B-Divyesh/sf-camera-ingest-preflight");
+});
+
+test("@regression:install-options only offer an available source installation", async ({ page }) => {
+  await page.goto("/");
+  const install = page.locator("#install");
+  await expect(install.getByRole("link", { name: "View source code" })).toHaveAttribute("href", "https://github.com/B-Divyesh/sf-camera-ingest-preflight");
+  await expect(install.locator('a[href*="/releases"]')).toHaveCount(0);
+  await expect(install).not.toContainText(/release binaries/i);
+  expect(readFileSync(resolve(root, "README.md"), "utf8")).not.toMatch(/release binaries/i);
 });

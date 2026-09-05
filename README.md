@@ -16,8 +16,6 @@ cargo install --path .
 camera-ingest-preflight --help
 ```
 
-The factory publishes release binaries separately. This repository is ready to package with `cargo package`.
-
 Try the bundled card without preparing a folder:
 
 ```sh

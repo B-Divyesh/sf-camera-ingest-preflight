@@ -172,6 +172,6 @@
     "claim": "The scanner is MIT licensed and its source is available on GitHub.",
     "where": "homepage source link, footer, README",
     "test": "npm run claim -- --grep @claim:open-source",
-    "sandbox": "Reads the shipped MIT license and checks the homepage source link."
+    "sandbox": "Reads the shipped MIT license and source-install documentation, then checks the visible homepage link to the source repository."
   }
 ]

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Removed the unavailable release-binary offer. The supported install path is
+  the documented source build.
 - Bound cached web-license verdicts to a SHA-256 fingerprint of the exact
   license token. Returned and restored tokens now always verify before access.
 - Added the paid local migration workspace: it generates printable and
