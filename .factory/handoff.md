@@ -1,3 +1,49 @@
+# Camera Ingest Preflight — verification 8 handoff
+
+## Verification 8 status: PASS
+
+Independent QA reviewed implementation
+`cda621b15d037f896501de60f136eec7ebf3cca3` and documentation
+`0bc8952415b8a968abdbd4fe632ce90f2312489d` at
+<https://camera-ingest-preflight.sociobot.in/> on 2026-09-06.
+
+There are zero findings and zero untested public claims. A clean clone without
+`node_modules` passed all 25 exact manifest commands, `npm test` (12 Rust and
+36 Chromium tests), typecheck, format, clippy, build, and `cargo package
+--locked`. A clean extracted consumer installed the packaged CLI and its real
+`demo --profile photoprism` produced the expected four-file 0 ready / 3 review
+/ 1 reject report and exit code 1.
+
+Fresh desktop and phone live browsers showed the job, audience, and **Try it
+with sample data** before scrolling. Keyboard demo entry, persistent sandbox
+label, reset, privacy isolation, offline reload, legal routes, 404, focus,
+reduced motion, and accessibility passed. The worker URL check passed with no
+browser errors; the full live Playwright suite passed 36/36.
+
+Live documents carry the later documentation build ID `0bc8952415b8`; all
+product JS, CSS, fixture, image, legal assets, and normalized documents match
+implementation `cda621b`. The derived service-worker cache name is the only
+expected build-stamp difference.
+
+The prior unavailable-release-binary finding is fixed: public copy offers a
+working source install and source link only, with regression coverage. The
+external Sociobot checkout still returns the authorised expected unregistered
+404 and is not a product finding.
+
+See `.factory/verification-8.md` for complete evidence. To reproduce:
+
+```sh
+npm ci
+npm test
+npm run typecheck
+cargo fmt --all -- --check
+cargo clippy --all-targets --all-features -- -D warnings
+npm run build
+cargo package --locked
+```
+
+---
+
 # Camera Ingest Preflight — repair 8 handoff
 
 ## Status: PASS
