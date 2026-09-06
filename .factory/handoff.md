@@ -1,3 +1,50 @@
+# Camera Ingest Preflight — review 2 handoff
+
+## Review 2 status: PASS
+
+Strict review 2 examined implementation
+`cda621b15d037f896501de60f136eec7ebf3cca3`, documentation
+`0bc8952415b8a968abdbd4fe632ce90f2312489d`, and the live product at
+<https://camera-ingest-preflight.sociobot.in/> on 2026-09-06.
+
+There are zero findings at every severity and zero untested public claims. All
+25 exact claim commands passed from a fresh clone. Local gates passed: 12 Rust
+tests, 36 browser tests, typecheck, format, clippy, build, and package. A clean
+consumer installed the packaged CLI and another installed the documented Git
+source. The real demo reported 4 files, 0 ready, 3 review, and 1 reject with
+GPS coordinates redacted and expected exit code 1.
+
+Fresh desktop and phone live contexts showed the job, audience, and first
+action before scrolling. Keyboard and touch sample entry, persistent demo
+label, reset, real-storage isolation, offline reload, reduced motion, 200%
+text, focus, touch targets, legal routes, links, and designed HTTP 404 passed.
+Axe had no serious or critical violations. The URL check had no browser errors.
+Lighthouse mobile scored 100 in all four categories, with 1.20 s LCP, 0 ms TBT,
+0 CLS, and 97,889 transferred bytes.
+
+The live documentation build ID is `0bc8952415b8`. Runtime JS, CSS, fixture,
+art, icons, and normalized documents match the implementation candidate; the
+service worker differs only by its derived cache stamp. The checkout's
+deliberate HTTP 404 is the work order's expected external billing condition,
+not a product defect.
+
+See `.factory/review-2.md` for the complete decision and evidence. Reports
+only were changed in this review; product code was not modified. Reproduce the
+main checks with:
+
+```sh
+npm ci
+npm test
+npm run typecheck
+cargo fmt --all -- --check
+cargo clippy --all-targets --all-features -- -D warnings
+npm run build
+cargo package --locked
+PLAYWRIGHT_BASE_URL=https://camera-ingest-preflight.sociobot.in npx playwright test
+```
+
+---
+
 # Camera Ingest Preflight — verification 8 handoff
 
 ## Verification 8 status: PASS
